@@ -1,0 +1,97 @@
+.spinner {
+    background: rgba(0, 0, 0, 0.25);
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    overflow: hidden;
+    cursor: wait;
+    display: none;
+}
+.spinner span:before,
+.spinner span:after,
+.spinner span {
+    border-radius: 50%;
+    width: 2.5em;
+    height: 2.5em;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation: spin 1.8s infinite ease-in-out;
+    animation: spin 1.8s infinite ease-in-out;
+    position: absolute;
+    top: 50%;
+}
+.spinner span {
+    color: #1ca499;
+    font-size: 10px;
+    left: 50%;
+    margin-top: -1.25em;
+    text-indent: -9999em;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+}
+.spinner span:before {
+    left: -3.5em;
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+}
+.spinner span:after {
+    left: 3.5em;
+}
+.spinner span:before,
+.spinner span:after {
+    content: '';
+    position: absolute;
+    top: 0;
+}
+@-webkit-keyframes spin {
+    0%,
+    80%,
+    100% {
+        box-shadow: 0 2.5em 0 -1.3em;
+    }
+    40% {
+        box-shadow: 0 2.5em 0 0;
+    }
+}
+@keyframes spin {
+    0%,
+    80%,
+    100% {
+        box-shadow: 0 2.5em 0 -1.3em;
+    }
+    40% {
+        box-shadow: 0 2.5em 0 0;
+    }
+}
+
+.panel#applitools-panel {
+    font-size: 130%;
+    padding: 10px;
+    margin: 4px;
+    display: none;
+}
+.panel#applitools-panel.passed {
+    background-color: rgb(39, 136, 30);
+    color: rgb(255, 255, 255);
+}
+.panel#applitools-panel.failed {
+    background-color: rgb(136, 0, 0);
+    color: rgb(255, 255, 255);
+}
+.panel#applitools-panel p {
+    margin: 0;
+}
+.panel#applitools-panel p.wrap-ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.panel#applitools-panel a {
+    color: #86C7FF;
+}

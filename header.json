@@ -1,0 +1,21 @@
+{
+  "headerVersion": 1,
+  "pluginVersion": "0.0.1",
+  "builderMinVersion": "3.0.6",
+  "builderMaxVersion": "3.*.*",
+  "identifier": "applitools",
+  "name": "Applitools for Selenium Builder",
+  "description": "Applitools plugin description.",
+  "siteUrl": "https://applitools.com",
+  "shutdownFunction": "applitools.shutdown",
+  "icon": "icon.png",
+  "load": [
+    "lib/bundle.js",
+    "src/translations.js",
+    "src/screenshot.js",
+    "src/interface.js",
+    "src/applitools.js",
+    "src/eyes.js",
+    "plugin.js"
+  ]
+}
