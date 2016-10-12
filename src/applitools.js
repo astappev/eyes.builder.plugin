@@ -163,6 +163,8 @@ var applitools = {
                 interface.spinner.hide(true);
                 console.error(err);
             }
+
+            this.eyes = null;
         }
     }
 };

@@ -31,8 +31,20 @@ builder.record.startRecording = (function() {
     var cached_function = builder.record.startRecording;
     return function() {
         var result = cached_function.apply(this, arguments);
+        console.log("startRecording call");
         interface.applitoolsPanel.hide();
         applitools.forceCloseSession();
+        return result;
+    };
+})();
+
+// Override start recording method
+builder.record.stopAll = (function() {
+    var cached_function = builder.record.stopAll;
+    return function() {
+        var result = cached_function.apply(this, arguments);
+        console.log("stopAll call");
+        applitools.closeSession();
         return result;
     };
 })();

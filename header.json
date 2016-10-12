@@ -16,6 +16,9 @@
     "src/interface.js",
     "src/applitools.js",
     "src/eyes.js",
+    "src/exports/java.js",
+    "src/exports/node-selenium.js",
+    "src/exports/node-protractor.js",
     "plugin.js"
   ]
 }
