@@ -16,6 +16,10 @@ builder.registerPostLoadHook(function () {
         var title = window.sebuilder.getRecordingWindow().document.title;
         applitools.checkElement(title);
     });
+    builder.gui.menu.addItem('applitools', _t('__applitools_menu_check_region'), 'applitools-check-region', function () {
+        var title = window.sebuilder.getRecordingWindow().document.title;
+        applitools.checkRegion(title);
+    });
 
     jQuery('#record-stop-button').click(function (e) {
         console.log("stop button");

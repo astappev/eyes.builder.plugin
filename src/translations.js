@@ -14,3 +14,5 @@ m.__applitools_close = "Save";
 m.__applitools_alert_empty_apikey = "Empty API key, set it first";
 m.__applitools_menu_check_window = "CheckWindow";
 m.__applitools_menu_check_element = "CheckElement";
+m.__applitools_menu_check_region = "CheckRegion";
+m.__applitools_check_region_notification_message = "Double-click or press Enter to confirm. Esc to cancel. Drag borders to resize.";

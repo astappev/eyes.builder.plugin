@@ -15,6 +15,8 @@
     "src/screenshot.js",
     "src/interface.js",
     "src/applitools.js",
+    "src/selectWidget.js",
+    "src/selectExploring.js",
     "src/eyes.js",
     "src/exports/java.js",
     "src/exports/node-selenium.js",

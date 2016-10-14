@@ -63,7 +63,6 @@ var interface = {
                 newNode('hr'),
                 newNode('div', {style: 'margin-top:20px;'},
                     newNode('a', {'href': '#', 'class': 'button', 'id': 'applitools-cancel', 'click': function() {
-                            debugger;
                             applitools.setCredentials();
                             applitools.appName = jQuery('#applitools_app_name').val();
                             applitools.testName = jQuery('#applitools_test_name').val();
@@ -76,7 +75,6 @@ var interface = {
     settingsPanel: {
         element: null,
         show: function() {
-            debugger;
             if (this.element) { return; }
             this.element = interface.settingsDialog;
             builder.dialogs.show(this.element);
@@ -120,6 +118,28 @@ var interface = {
         }
     },
 
+    notificationBox: {
+        element: null,
+        show: function (window, message) {
+            if (this.element == null) {
+                this.element = sebuilder.getBrowser().getNotificationBox(window);
+                this.element.appendNotification(
+                    message,
+                    'notification-box',
+                    null,
+                    this.element.PRIORITY_INFO_HIGH,
+                    []
+                );
+            }
+        },
+        hide: function () {
+            if (this.element != null) {
+                this.element.removeCurrentNotification();
+                this.element = null;
+            }
+        }
+    },
+
     processTestResult: function (data) {
         var url = "<p class='wrap-ellipsis'>See details at <a href='" + data.appUrls.batch + "' target='_blank'>" + data.appUrls.batch + "</a></p>";
 
@@ -132,7 +152,6 @@ var interface = {
         }
 
         if (data.stepsInfo && !jQuery.isEmptyObject(data.stepsInfo)) {
-            debugger;
             var script = builder.getScript();
 
             var i = 0, eyesStepsIDs = collectStepsIds();
@@ -161,6 +180,22 @@ var interface = {
             stepsIDs.sort(function(a, b){return a-b});
             return stepsIDs;
         }
+    },
+
+    loadStylesFromFile: function (file, styles) {
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, false);
+        rawFile.onreadystatechange = function () {
+            if(rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0)) {
+                var text = rawFile.responseText;
+                if (styles.styleSheet) {
+                    styles.styleSheet.cssText = text;
+                } else {
+                    styles.appendChild(window.document.createTextNode(text));
+                }
+            }
+        };
+        rawFile.send(null);
     }
 
 };

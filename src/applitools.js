@@ -10,13 +10,19 @@ var applitools = {
         "eyes.checkWindow": {
             "params": ["title"],
             "docs": {
-                "description": "Capture full screen of current page."
+                "description": "Capture full screen of the page."
             }
         },
         "eyes.checkElement": {
             "params": ["locator", "title"],
             "docs": {
                 "description": "Capture screen of the element."
+            }
+        },
+        "eyes.checkRegion": {
+            "params": ["top", "left", "width", "height", "title"],
+            "docs": {
+                "description": "Capture screen of region on the page."
             }
         }
     },
@@ -102,6 +108,46 @@ var applitools = {
                     builder.record.recordStep(checkElementStep);
                     var rect = locator.__originalElement.getBoundingClientRect();
                     var scrObj = screenshot.pageRegion(rect.x, rect.y, rect.width, rect.height);
+                    var promise = applitools.sendImage(scrObj, title);
+
+                    if (promise) {
+                        promise.then(function () {
+                            window.sebuilder.focusRecorderWindow();
+                        });
+                    }
+                },
+                true
+            );
+        }
+    },
+
+    checkRegion: function (title) {
+        if (builder.record.verifyExploring) {
+            builder.record.stopVerifyExploring();
+        } else {
+            builder.record.verifyExploring = true;
+            builder.record.stop();
+            jQuery('#record-panel').show();
+            window.sebuilder.focusRecordingTab();
+            builder.record.verifyExplorer = new applitools.SelectExplorer(
+                window.sebuilder.getRecordingWindow(),
+                builder.getScript().seleniumVersion,
+                function(region) {
+                    // Don't immediately stop: this would cause the listener that prevents the click from
+                    // actually activating the selected element to be detached prematurely.
+                    setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
+
+                    var checkRegionStep = new builder.Step(
+                        builder.selenium2.stepTypes["eyes.checkRegion"],
+                        region.top.toString(),
+                        region.left.toString(),
+                        region.width.toString(),
+                        region.height.toString(),
+                        title
+                    );
+                    builder.record.recordStep(checkRegionStep);
+
+                    var scrObj = screenshot.pageRegion(region.left, region.top, region.width, region.height);
                     var promise = applitools.sendImage(scrObj, title);
 
                     if (promise) {
