@@ -2,8 +2,8 @@
 
 ## Installation
 
-Copy folder content into SB plugins directory
+Copy repository content into SeleniumBuilder plugin directory
 
 ```
-<Firefox profile directory>/SeBuilder3/plugins/
+<Firefox profile directory>/SeBuilder3/plugins/applitools (the last folder you have to create by yourself)
 ```
