@@ -8,18 +8,9 @@ builder.registerPostLoadHook(function () {
     });
 
     builder.gui.menu.addMenu(_t('__applitools'), 'applitools');
-    builder.gui.menu.addItem('applitools', _t('__applitools_menu_check_window'), 'applitools-check-window', function () {
-        var title = window.sebuilder.getRecordingWindow().document.title;
-        applitools.checkWindow(title);
-    });
-    builder.gui.menu.addItem('applitools', _t('__applitools_menu_check_element'), 'applitools-check-element', function () {
-        var title = window.sebuilder.getRecordingWindow().document.title;
-        applitools.checkElement(title);
-    });
-    builder.gui.menu.addItem('applitools', _t('__applitools_menu_check_region'), 'applitools-check-region', function () {
-        var title = window.sebuilder.getRecordingWindow().document.title;
-        applitools.checkRegion(title);
-    });
+    builder.gui.menu.addItem('applitools', _t('__applitools_record_window'), 'applitools-record-window');
+    builder.gui.menu.addItem('applitools', _t('__applitools_record_element'), 'applitools-record-element');
+    builder.gui.menu.addItem('applitools', _t('__applitools_record_region'), 'applitools-record-region');
 
     jQuery('#record-stop-button').click(function (e) {
         console.log("stop button");
@@ -37,6 +28,7 @@ builder.record.startRecording = (function() {
         var result = cached_function.apply(this, arguments);
         console.log("startRecording call");
         interface.applitoolsPanel.hide();
+        interface.controlButtons.show();
         applitools.forceCloseSession();
         return result;
     };
@@ -48,7 +40,19 @@ builder.record.stopAll = (function() {
     return function() {
         var result = cached_function.apply(this, arguments);
         console.log("stopAll call");
+        interface.controlButtons.hide();
         applitools.closeSession();
+        return result;
+    };
+})();
+
+// Override start recording method
+builder.record.continueRecording = (function() {
+    var cached_function = builder.record.continueRecording;
+    return function() {
+        var result = cached_function.apply(this, arguments);
+        console.log("continueRecording call");
+        interface.applitoolsPanel.hide();
         return result;
     };
 })();

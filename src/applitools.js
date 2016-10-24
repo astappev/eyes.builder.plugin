@@ -1,5 +1,6 @@
 var applitools = {
-    eyes: null,
+    eyesSession: null,
+    apiKey: null,
     appName: _t('__applitools_app_default_name'),
     testName: _t('__applitools_test_default_name'),
     isCustomTypesLoaded: false,
@@ -31,11 +32,13 @@ var applitools = {
         if (!this.isCustomTypesLoaded) {
             var items = [];
             for (var n in this.customTypes) {
-                builder.selenium2.__stepData[n] = this.customTypes[n].params;
-                builder.selenium2.docs[n] = this.customTypes[n].docs;
+                if (this.customTypes.hasOwnProperty(n)) {
+                    builder.selenium2.__stepData[n] = this.customTypes[n].params;
+                    builder.selenium2.docs[n] = this.customTypes[n].docs;
 
-                builder.selenium2.stepTypes[n] = new builder.selenium2.StepType(n);
-                items.push(builder.selenium2.stepTypes[n]);
+                    builder.selenium2.stepTypes[n] = new builder.selenium2.StepType(n);
+                    items.push(builder.selenium2.stepTypes[n]);
+                }
             }
 
             builder.selenium2.categories.push([_t('__applitools'), items]);
@@ -46,49 +49,81 @@ var applitools = {
     shutdown: function () {
     },
 
-    getCredentials: function() {
-        var logins = this.loginManager.findLogins(
-            {}, 'chrome://seleniumbuilder', null, 'Applitools API Key'
-        );
-
-        for (var i = 0; i < logins.length; i++) {
-            return {'apikey': logins[i].password};
+    getApiKey: function() {
+        if (!this.apiKey) {
+            var logins = this.loginManager.findLogins({}, 'chrome://seleniumbuilder', null, 'Applitools API Key');
+            for (var i = 0, l = logins.length; i < l; i++) {
+                this.apiKey = logins[i].password;
+                break;
+            }
         }
-        return {'apikey': ""};
+
+        return this.apiKey;
     },
 
-    setCredentials: function() {
-        var apikey = jQuery('#applitools_apikey').val();
-
-        var logins = this.loginManager.findLogins(
-            {}, 'chrome://seleniumbuilder', null, 'Applitools API Key'
-        );
-
+    setApiKey: function(newApiKey) {
+        var logins = this.loginManager.findLogins({}, 'chrome://seleniumbuilder', null, 'Applitools API Key');
         for (var i = 0; i < logins.length; i++) {
             this.loginManager.removeLogin(logins[i]);
         }
+        this.apiKey = null;
 
-        if (apikey) {
+        if (typeof(newApiKey) === 'string' && newApiKey.length >= 48) {
             var loginInfo = new this.loginInfo(
                 'chrome://seleniumbuilder', null, 'Applitools API Key',
                 /*username*/      "api-key",
-                /*password*/      apikey,
+                /*password*/      newApiKey,
                 /*usernameField*/ "",
                 /*passwordField*/ ""
             );
             this.loginManager.addLogin(loginInfo);
+            this.apiKey = newApiKey;
+            return true;
         }
+
+        return false;
+    },
+
+    getRecWinTitle: function () {
+        return window.sebuilder.getRecordingWindow().document.title;
+    },
+
+    getRecWinViewportSize: function () {
+        var recordingWindow = window.sebuilder.getRecordingWindow().window;
+        return {
+            width: recordingWindow.innerWidth,
+            height: recordingWindow.innerHeight
+        };
     },
 
     checkWindow: function (title) {
+        if (!this.getApiKey()) {
+            interface.settingsPanel.show();
+            alert(_t('__applitools_alert_empty_apikey'));
+            return;
+        }
+
+        title = title || this.getRecWinTitle();
         var checkWindowStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkWindow"], title);
         builder.record.recordStep(checkWindowStep);
 
         var scrObj = screenshot.wholePage();
-        this.sendImage(scrObj, title);
+        builder.record.stop();
+        var promise = this.sendImage(scrObj, title);
+        if (promise) {
+            promise.then(function () {
+                builder.record.continueRecording();
+            });
+        }
     },
 
     checkElement: function (title) {
+        if (!this.getApiKey()) {
+            interface.settingsPanel.show();
+            alert(_t('__applitools_alert_empty_apikey'));
+            return;
+        }
+
         if (builder.record.verifyExploring) {
             builder.record.stopVerifyExploring();
         } else {
@@ -96,24 +131,33 @@ var applitools = {
             builder.record.stop();
             jQuery('#record-panel').show();
             window.sebuilder.focusRecordingTab();
+            interface.notificationBox.show(_t('__applitools_check_element_notification_message'));
             builder.record.verifyExplorer = new builder.VerifyExplorer(
                 window.sebuilder.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
                 function(locator) {
-                    // Don't immediately stop: this would cause the listener that prevents the click from
-                    // actually activating the selected element to be detached prematurely.
-                    setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
-
+                    title = title || applitools.getRecWinTitle();
                     var checkElementStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkElement"], locator, title);
                     builder.record.recordStep(checkElementStep);
+                    jQuery('#record-panel').hide();
+                    window.sebuilder.focusRecorderWindow();
+
+                    interface.notificationBox.hide();
+                    builder.record.verifyExploring = false;
+                    builder.record.verifyExplorer.destroy();
+                    builder.record.verifyExplorer = null;
+
                     var rect = locator.__originalElement.getBoundingClientRect();
                     var scrObj = screenshot.pageRegion(rect.x, rect.y, rect.width, rect.height);
                     var promise = applitools.sendImage(scrObj, title);
-
                     if (promise) {
                         promise.then(function () {
-                            window.sebuilder.focusRecorderWindow();
+                            builder.record.continueRecording();
                         });
+                    } else {
+                        // Don't immediately stop: this would cause the listener that prevents the click from
+                        // actually activating the selected element to be detached prematurely.
+                        setTimeout(function() { builder.record.continueRecording(); }, 1);
                     }
                 },
                 true
@@ -122,6 +166,12 @@ var applitools = {
     },
 
     checkRegion: function (title) {
+        if (!this.getApiKey()) {
+            interface.settingsPanel.show();
+            alert(_t('__applitools_alert_empty_apikey'));
+            return;
+        }
+
         if (builder.record.verifyExploring) {
             builder.record.stopVerifyExploring();
         } else {
@@ -129,14 +179,12 @@ var applitools = {
             builder.record.stop();
             jQuery('#record-panel').show();
             window.sebuilder.focusRecordingTab();
+            interface.notificationBox.show(_t('__applitools_check_region_notification_message'));
             builder.record.verifyExplorer = new applitools.SelectExplorer(
                 window.sebuilder.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
                 function(region) {
-                    // Don't immediately stop: this would cause the listener that prevents the click from
-                    // actually activating the selected element to be detached prematurely.
-                    setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
-
+                    title = title || applitools.getRecWinTitle();
                     var checkRegionStep = new builder.Step(
                         builder.selenium2.stepTypes["eyes.checkRegion"],
                         region.top.toString(),
@@ -146,33 +194,42 @@ var applitools = {
                         title
                     );
                     builder.record.recordStep(checkRegionStep);
+                    jQuery('#record-panel').hide();
+                    window.sebuilder.focusRecorderWindow();
+
+                    interface.notificationBox.hide();
+                    builder.record.verifyExploring = false;
+                    builder.record.verifyExplorer.destroy();
+                    builder.record.verifyExplorer = null;
 
                     var scrObj = screenshot.pageRegion(region.left, region.top, region.width, region.height);
                     var promise = applitools.sendImage(scrObj, title);
-
                     if (promise) {
                         promise.then(function () {
-                            window.sebuilder.focusRecorderWindow();
+                            builder.record.continueRecording();
                         });
+                    } else {
+                        // Don't immediately stop: this would cause the listener that prevents the click from
+                        // actually activating the selected element to be detached prematurely.
+                        setTimeout(function() { builder.record.continueRecording(); }, 1);
                     }
-                },
-                true
+                }
             );
         }
     },
 
     sendImage: function (scrObj, title) {
-        interface.spinner.show();
-        console.log("send image");
-
-        var apiKey = this.getCredentials().apikey;
+        var apiKey = this.getApiKey();
         if (apiKey) {
-            if (!this.eyes) {
-                this.eyes = new eyes(this.appName, this.testName, apiKey);
+            if (!this.eyesSession) {
+                this.eyesSession = new applitools.EyesSession(this.appName, this.testName, this.getRecWinViewportSize(), apiKey);
+            } else if (this.eyesSession.isClosed) {
+                return;
             }
 
+            interface.spinner.show();
             try {
-                return this.eyes.sendImage(scrObj.canvas, title).then(function () {
+                return this.eyesSession.sendImage(scrObj.canvas, title).then(function () {
                     interface.spinner.hide();
                     console.log("image sent");
                 }, function (err) {
@@ -186,31 +243,33 @@ var applitools = {
         }
     },
 
-    forceCloseSession: function () {
-        if (this.eyes) {
-            this.eyes = null;
-        }
-    },
-
     closeSession: function () {
-        if (this.eyes) {
+        if (this.eyesSession) {
             console.log("close session");
-            interface.spinner.show(true);
+            interface.spinner.show();
             try {
-                this.eyes.close().then(function (data) {
-                    interface.processTestResult(data);
-                    interface.spinner.hide(true);
-                    console.log("session closed");
-                }, function (err) {
-                    interface.spinner.hide(true);
-                    console.error("Session can't be closed", err);
-                });
+                var promise = this.eyesSession.close();
+                if(promise) {
+                    return promise.then(function (data) {
+                        interface.processTestResult(data);
+                        console.log("session closed");
+                    }, function (err) {
+                        console.error("Session can't be closed", err);
+                    }).then(function () {
+                        interface.spinner.hide();
+                    });
+                }
             } catch (err) {
-                interface.spinner.hide(true);
                 console.error(err);
             }
 
-            this.eyes = null;
+            interface.spinner.hide();
+        }
+    },
+
+    forceCloseSession: function () {
+        if (this.eyesSession) {
+            this.eyesSession = null;
         }
     }
 };

@@ -20,9 +20,9 @@ builder.selenium2.io.addLangFormatter({
     "\t\t{initDriver}\n" +
     "\t\tdriver.manage().timeouts().implicitlyWait({timeoutSeconds}, TimeUnit.SECONDS);\n" +
     "\t\tEyes eyes = new Eyes();\n" +
-    "\t\teyes.setApiKey('" + (applitools.getCredentials().apikey || "<YOUR_API_KEY>") + "');\n" +
+    "\t\teyes.setApiKey('" + (applitools.getApiKey() || "<YOUR_API_KEY>") + "');\n" +
     "\t\ttry {\n" +
-    "\t\t\tdriver = eyes.open(driver, '" + applitools.appName + "', '" + applitools.testName + "');\n\n",
+    "\t\t\tdriver = eyes.open(driver, '" + applitools.appName + "', '" + applitools.testName + "', new RectangleSize(" + applitools.getRecWinViewportSize().width + ", " + applitools.getRecWinViewportSize().height + "));\n\n",
     end: "\n" +
     "\t\t\teyes.close();\n" +
     "\t\t} finally {\n" +
@@ -418,5 +418,3 @@ builder.selenium2.io.addLangFormatter({
         return varType + " " + varName;
     }
 });
-
-if (builder && builder.loader && builder.loader.loadNextMainScript) { builder.loader.loadNextMainScript(); }

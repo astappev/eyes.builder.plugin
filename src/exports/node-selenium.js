@@ -17,13 +17,13 @@ builder.selenium2.io.addLangFormatter({
     "\n" +
     "var Eyes = require('eyes.selenium').Eyes;\n"+
     "var eyes = new Eyes();\n"+
-    "eyes.setApiKey('" + (applitools.getCredentials().apikey || "<YOUR_API_KEY>") + "');\n"+
+    "eyes.setApiKey('" + (applitools.getApiKey() || "<YOUR_API_KEY>") + "');\n"+
     "\n" +
     "driver.controlFlow().on('uncaughtException', function(err) {\n" +
     "\tconsole.log('There was an uncaught exception: ' + err);\n" +
     "});\n" +
     "\n" +
-    "eyes.open(driver, '" + applitools.appName + "', '" + applitools.testName + "').then(function(driver) {\n",
+    "eyes.open(driver, '" + applitools.appName + "', '" + applitools.testName + "', {width: " + applitools.getRecWinViewportSize().width + ", height: " + applitools.getRecWinViewportSize().height + "}).then(function(driver) {\n",
     end:
     "\teyes.close();\n" +
     "\tdriver.quit();\n" +
@@ -474,5 +474,3 @@ builder.selenium2.io.addLangFormatter({
     usedVar: function(varName, varType) { return "VARS." + varName; },
     unusedVar: function(varName, varType) { return "VARS." + varName; }
 });
-
-if (builder && builder.loader && builder.loader.loadNextMainScript) { builder.loader.loadNextMainScript(); }

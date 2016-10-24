@@ -3,14 +3,14 @@ builder.selenium2.io.addLangFormatter({
 
     start: "var Eyes = require('eyes.selenium').Eyes;\n" +
     "var eyes = new Eyes();\n" +
-    "eyes.setApiKey('" + (applitools.getCredentials().apikey || "<YOUR_API_KEY>") + "');\n" +
+    "eyes.setApiKey('" + (applitools.getApiKey() || "<YOUR_API_KEY>") + "');\n" +
     "\n" +
     "describe('Selenium Test Case', function() {\n" +
     "\tit('should execute test case without errors', function() {\n" +
     "\t\tvar text, value, bool, source, url, title;\n" +
     "\t\tvar TestVars = {};\n" +
     "\n" +
-    "\t\teyes.open(browser, '" + applitools.appName + "', '" + applitools.testName + "');\n",
+    "\t\teyes.open(browser, '" + applitools.appName + "', '" + applitools.testName + "', {width: " + applitools.getRecWinViewportSize().width + ", height: " + applitools.getRecWinViewportSize().height + "});\n",
 
     end: "\t\teyes.close();\n" +
     "\t});\n" +
@@ -444,5 +444,3 @@ builder.selenium2.io.addLangFormatter({
         return "VARS." + varName;
     }
 });
-
-if (builder && builder.loader && builder.loader.loadNextMainScript) { builder.loader.loadNextMainScript(); }
