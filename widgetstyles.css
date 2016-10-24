@@ -31,7 +31,7 @@ selectWidget-selection.x-ray {
 	background: hsla(70, 100%, 70%, 0.4);
 }
 selectWidget-selection-inner {
-  background: 0 !important;
+	background: 0 !important;
 	cursor: move;
 	height: 100%;
 	overflow: hidden;
