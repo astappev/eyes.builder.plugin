@@ -10,7 +10,7 @@
   "shutdownFunction": "applitools.shutdown",
   "icon": "icon.png",
   "load": [
-    "lib/bundle.js",
+    "lib/eyes-browser.min.js",
     "src/translations.js",
     "src/screenshot.js",
     "src/interface.js",
