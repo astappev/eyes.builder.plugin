@@ -140,12 +140,8 @@ var applitools = {
                     var checkElementStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkElement"], locator, title);
                     builder.record.recordStep(checkElementStep);
                     jQuery('#record-panel').hide();
-                    window.sebuilder.focusRecorderWindow();
-
                     interface.notificationBox.hide();
-                    builder.record.verifyExploring = false;
-                    builder.record.verifyExplorer.destroy();
-                    builder.record.verifyExplorer = null;
+                    window.sebuilder.focusRecorderWindow();
 
                     var recWindow = window.sebuilder.getRecordingWindow().document.defaultView;
                     var rect = locator.__originalElement.getBoundingClientRect();
@@ -153,12 +149,12 @@ var applitools = {
                     var promise = applitools.sendImage(scrObj, title);
                     if (promise) {
                         promise.then(function () {
-                            builder.record.continueRecording();
+                            builder.record.stopVerifyExploring();
                         });
                     } else {
                         // Don't immediately stop: this would cause the listener that prevents the click from
                         // actually activating the selected element to be detached prematurely.
-                        setTimeout(function() { builder.record.continueRecording(); }, 1);
+                        setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
                     }
                 },
                 true
@@ -196,23 +192,19 @@ var applitools = {
                     );
                     builder.record.recordStep(checkRegionStep);
                     jQuery('#record-panel').hide();
-                    window.sebuilder.focusRecorderWindow();
-
                     interface.notificationBox.hide();
-                    builder.record.verifyExploring = false;
-                    builder.record.verifyExplorer.destroy();
-                    builder.record.verifyExplorer = null;
+                    window.sebuilder.focusRecorderWindow();
 
                     var scrObj = screenshot.pageRegion(region.left, region.top, region.width, region.height);
                     var promise = applitools.sendImage(scrObj, title);
                     if (promise) {
                         promise.then(function () {
-                            builder.record.continueRecording();
+                            builder.record.stopVerifyExploring();
                         });
                     } else {
                         // Don't immediately stop: this would cause the listener that prevents the click from
                         // actually activating the selected element to be detached prematurely.
-                        setTimeout(function() { builder.record.continueRecording(); }, 1);
+                        setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
                     }
                 }
             );
