@@ -3,7 +3,7 @@ builder.registerPostLoadHook(function () {
     applitools.init();
     interface.init();
 
-    builder.gui.menu.addItem('file', _t('__applitools_settings'), 'file-applitools-settings', function() {
+    builder.gui.menu.addItem('file', _t('__applitools_settings_menu'), 'file-applitools-settings', function() {
         interface.settingsPanel.show();
     });
 

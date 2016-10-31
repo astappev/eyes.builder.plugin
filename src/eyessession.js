@@ -5,7 +5,7 @@ applitools.EyesSession = function (appName, testName, viewportSize, apiKey) {
 
     this.EyesImages = new window.EyesImages.Eyes();
     this.EyesImages.setApiKey(apiKey);
-    this.EyesImages.setOs(window.navigator.userAgent);
+    this.EyesImages.setInferredEnvironment(window.navigator.userAgent);
     this.EyesImages.setHostingApp("Selenium builder");
     this.EyesImages.ignoreMismatch = true;
     this.eyesPromise = null;
