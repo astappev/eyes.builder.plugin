@@ -147,8 +147,9 @@ var applitools = {
                     builder.record.verifyExplorer.destroy();
                     builder.record.verifyExplorer = null;
 
+                    var recWindow = window.sebuilder.getRecordingWindow().document.defaultView;
                     var rect = locator.__originalElement.getBoundingClientRect();
-                    var scrObj = screenshot.pageRegion(rect.x, rect.y, rect.width, rect.height);
+                    var scrObj = screenshot.pageRegion(rect.x + recWindow.pageXOffset, rect.y + recWindow.pageYOffset, rect.width, rect.height);
                     var promise = applitools.sendImage(scrObj, title);
                     if (promise) {
                         promise.then(function () {
