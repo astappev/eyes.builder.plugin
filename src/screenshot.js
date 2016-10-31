@@ -1,7 +1,7 @@
 var screenshot = {
 
     wholePage: function () {
-        var contentWindow = window.sebuilder.getRecordingWindow().content;
+        var contentWindow = bridge.getRecordingWindow().content;
         var contentDocument = contentWindow.document;
 
         var width = Math.max(contentDocument.documentElement.scrollWidth, contentDocument.body.scrollWidth),
@@ -11,7 +11,7 @@ var screenshot = {
     },
 
     visibleContent: function () {
-        var contentWindow = window.sebuilder.getRecordingWindow().content;
+        var contentWindow = bridge.getRecordingWindow().content;
         var contentDocument = contentWindow.document;
 
         var x = contentDocument.documentElement.scrollLeft,
@@ -23,7 +23,7 @@ var screenshot = {
     },
 
     pageRegion: function (x, y, width, height) {
-        var contentWindow = window.sebuilder.getRecordingWindow().content;
+        var contentWindow = bridge.getRecordingWindow().content;
         return this.createCanvas(x, y, width, height, contentWindow);
     },
 

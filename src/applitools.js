@@ -1,8 +1,8 @@
 var applitools = {
     eyesSession: null,
     apiKey: null,
-    appName: _t('__applitools_app_default_name'),
-    testName: _t('__applitools_test_default_name'),
+    appName: null,
+    testName: null,
     isCustomTypesLoaded: false,
     loginManager: Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager),
     loginInfo: new Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init"),
@@ -84,15 +84,59 @@ var applitools = {
         return false;
     },
 
+    getAppName: function () {
+        if (!this.appName) {
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.appName";
+            try {
+                this.appName = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : null;
+            } catch (e) {
+            }
+        }
+
+        return this.appName;
+    },
+
+    setAppName: function (newAppName) {
+        var prefName = "extensions.seleniumbuilder.plugins.applitools.appName";
+        try {
+            bridge.prefManager.setCharPref(prefName, newAppName);
+        } catch (e) {
+        }
+
+        this.appName = newAppName;
+    },
+
+    getTestName: function () {
+        if (!this.testName) {
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.testName";
+            try {
+                this.testName = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : null;
+            } catch (e) {
+            }
+        }
+
+        return this.testName;
+    },
+
+    setTestName: function (newTestName) {
+        var prefName = "extensions.seleniumbuilder.plugins.applitools.testName";
+        try {
+            bridge.prefManager.setCharPref(prefName, newTestName);
+        } catch (e) {
+        }
+
+        this.testName = newTestName;
+    },
+
     getRecWinTitle: function () {
-        return window.sebuilder.getRecordingWindow().document.title;
+        return bridge.getRecordingWindow().document.title;
     },
 
     getRecWinViewportSize: function () {
-        var recordingWindow = window.sebuilder.getRecordingWindow().window;
+        var recWindow = bridge.getRecordingWindow().window;
         return {
-            width: recordingWindow.innerWidth,
-            height: recordingWindow.innerHeight
+            width: recWindow.innerWidth,
+            height: recWindow.innerHeight
         };
     },
 
@@ -130,10 +174,10 @@ var applitools = {
             builder.record.verifyExploring = true;
             builder.record.stop();
             jQuery('#record-panel').show();
-            window.sebuilder.focusRecordingTab();
+            bridge.focusRecordingTab();
             interface.notificationBox.show(_t('__applitools_check_element_notification_message'));
             builder.record.verifyExplorer = new builder.VerifyExplorer(
-                window.sebuilder.getRecordingWindow(),
+                bridge.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
                 function(locator) {
                     title = title || applitools.getRecWinTitle();
@@ -141,9 +185,9 @@ var applitools = {
                     builder.record.recordStep(checkElementStep);
                     jQuery('#record-panel').hide();
                     interface.notificationBox.hide();
-                    window.sebuilder.focusRecorderWindow();
+                    bridge.focusRecorderWindow();
 
-                    var recWindow = window.sebuilder.getRecordingWindow().document.defaultView;
+                    var recWindow = bridge.getRecordingWindow().document.defaultView;
                     var rect = locator.__originalElement.getBoundingClientRect();
                     var scrObj = screenshot.pageRegion(rect.x + recWindow.pageXOffset, rect.y + recWindow.pageYOffset, rect.width, rect.height);
                     var promise = applitools.sendImage(scrObj, title);
@@ -175,10 +219,10 @@ var applitools = {
             builder.record.verifyExploring = true;
             builder.record.stop();
             jQuery('#record-panel').show();
-            window.sebuilder.focusRecordingTab();
+            bridge.focusRecordingTab();
             interface.notificationBox.show(_t('__applitools_check_region_notification_message'));
             builder.record.verifyExplorer = new applitools.SelectExplorer(
-                window.sebuilder.getRecordingWindow(),
+                bridge.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
                 function(region) {
                     title = title || applitools.getRecWinTitle();
@@ -193,7 +237,7 @@ var applitools = {
                     builder.record.recordStep(checkRegionStep);
                     jQuery('#record-panel').hide();
                     interface.notificationBox.hide();
-                    window.sebuilder.focusRecorderWindow();
+                    bridge.focusRecorderWindow();
 
                     var scrObj = screenshot.pageRegion(region.left, region.top, region.width, region.height);
                     var promise = applitools.sendImage(scrObj, title);
@@ -215,7 +259,10 @@ var applitools = {
         var apiKey = this.getApiKey();
         if (apiKey) {
             if (!this.eyesSession) {
-                this.eyesSession = new applitools.EyesSession(this.appName, this.testName, this.getRecWinViewportSize(), apiKey);
+                var location = bridge.getBrowser().location;
+                var appName = this.getAppName() || location.hostname;
+                var testName = this.getTestName() || location.pathname;
+                this.eyesSession = new applitools.EyesSession(appName, testName, this.getRecWinViewportSize(), apiKey);
             } else if (this.eyesSession.isClosed) {
                 return;
             }

@@ -22,7 +22,7 @@ builder.selenium2.io.addLangFormatter({
     "\t\tEyes eyes = new Eyes();\n" +
     "\t\teyes.setApiKey('" + (applitools.getApiKey() || "<YOUR_API_KEY>") + "');\n" +
     "\t\ttry {\n" +
-    "\t\t\tdriver = eyes.open(driver, '" + applitools.appName + "', '" + applitools.testName + "', new RectangleSize(" + applitools.getRecWinViewportSize().width + ", " + applitools.getRecWinViewportSize().height + "));\n\n",
+    "\t\t\tdriver = eyes.open(driver, '" + applitools.getAppName() + "', '" + applitools.getTestName() + "', new RectangleSize(" + applitools.getRecWinViewportSize().width + ", " + applitools.getRecWinViewportSize().height + "));\n\n",
     end: "\n" +
     "\t\t\teyes.close();\n" +
     "\t\t} finally {\n" +
@@ -45,7 +45,9 @@ builder.selenium2.io.addLangFormatter({
         "eyes.checkWindow":
             "\t\t\teyes.checkWindow({title}); \n",
         "eyes.checkElement":
-            "\t\t\teyes.checkElement(driver.findElement(By.{locatorBy}({locator})), {title}); \n",
+            "\t\t\teyes.checkRegion(By.{locatorBy}({locator}), {title}); \n",
+        "eyes.checkRegion":
+            "\t\t\teyes.checkRegion(new Region({left}, {top}, {width}, {height}), -1, {title}); \n",
         //--- navigation
         "get":
             "\t\t\tdriver.get({url});\n",

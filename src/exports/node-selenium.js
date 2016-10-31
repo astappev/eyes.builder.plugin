@@ -33,7 +33,9 @@ builder.selenium2.io.addLangFormatter({
         "eyes.checkWindow":
             "\teyes.checkWindow({title}); \n",
         "eyes.checkElement":
-            "\teyes.checkElement(driver.findElement(By.{locatorBy}({locator})), {title}); \n",
+            "\teyes.checkRegionBy(By.{locatorBy}({locator}), {title}); \n",
+        "eyes.checkRegion":
+            "\teyes.checkRegion({width: {width}, height: {height}, top: {top}, left: {left}}, {title}); \n",
         //--- navigation
         "get" :
             "\tdriver.get({url}); \n",

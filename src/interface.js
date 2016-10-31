@@ -34,6 +34,8 @@ var interface = {
         "<a href='#' id='applitools-record-region' class='button button-applitools'>" + _t('__applitools_record_region') + "</a><br/>");
 
         // settings panel
+        var appName = applitools.getAppName() || '';
+        var testName = applitools.getTestName() || '';
         var apiKey = applitools.getApiKey() || '';
         this.settingsDialog =
             newNode('div', {'class': 'dialog'},
@@ -62,7 +64,7 @@ var interface = {
                         newNode('td', newNode('input', {
                             id: 'applitools_app_name',
                             type: 'text',
-                            value: _t('__applitools_app_default_name'),
+                            value: appName,
                             'change': function() {}
                         }))
                     ),
@@ -71,7 +73,7 @@ var interface = {
                         newNode('td', newNode('input', {
                             id: 'applitools_test_name',
                             type: 'text',
-                            value: _t('__applitools_test_default_name'),
+                            value: testName,
                             'change': function() {}
                         }))
                     )
@@ -83,10 +85,12 @@ var interface = {
                         'class': 'button',
                         'id': 'applitools-cancel',
                         'click': function() {
+                            var appName = jQuery('#applitools_app_name').val();
+                            var testName = jQuery('#applitools_test_name').val();
                             var apiKey = jQuery('#applitools_apikey').val().trim();
                             if (applitools.setApiKey(apiKey)) {
-                                applitools.appName = jQuery('#applitools_app_name').val();
-                                applitools.testName = jQuery('#applitools_test_name').val();
+                                applitools.setAppName(appName);
+                                applitools.setTestName(testName);
                                 interface.settingsPanel.hide();
                             } else {
                                 alert(_t('__applitools_alert_empty_apikey_on_save'));
@@ -152,8 +156,8 @@ var interface = {
         element: null,
         show: function (message) {
             if (this.element == null) {
-                var recWindow = window.sebuilder.getRecordingWindow().document.defaultView;
-                this.element = sebuilder.getBrowser().getNotificationBox(recWindow);
+                var recWindow = bridge.getRecordingWindow().document.defaultView;
+                this.element = bridge.getBrowser().getNotificationBox(recWindow);
                 this.element.appendNotification(
                     message,
                     'notification-box',
