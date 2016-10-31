@@ -68,7 +68,7 @@ var applitools = {
         }
         this.apiKey = null;
 
-        if (typeof(newApiKey) === 'string' && newApiKey.length >= 48) {
+        if (typeof(newApiKey) === 'string' && newApiKey.length >= 1) {
             var loginInfo = new this.loginInfo(
                 'chrome://seleniumbuilder', null, 'Applitools API Key',
                 /*username*/      "api-key",
