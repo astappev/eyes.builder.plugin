@@ -1,4 +1,4 @@
-var screenshot = {
+applitools.screenshot = {
 
     wholePage: function () {
         var contentWindow = bridge.getRecordingWindow().content;
@@ -61,5 +61,10 @@ var screenshot = {
                 'height: ' + height + '\n' +
                 'error: ' + ex);
         }
+    },
+
+    canvasToBuffer: function (scrObj) {
+        var data = scrObj.canvas.toDataURL('image/png').split(',')[1];
+        return new window.Buffer(data, 'base64');
     }
 };

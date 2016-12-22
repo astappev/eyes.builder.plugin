@@ -10,7 +10,7 @@ builder.selenium2.io.addLangFormatter({
     "\t\tvar text, value, bool, source, url, title;\n" +
     "\t\tvar TestVars = {};\n" +
     "\n" +
-    "\t\teyes.open(browser, '" + applitools.getAppName() + "', '" + applitools.getTestName() + "', {width: " + applitools.getRecWinViewportSize().width + ", height: " + applitools.getRecWinViewportSize().height + "});\n",
+    "\t\teyes.open(browser, '" + applitools.getAppName() + "', '" + applitools.getTestName() + "');\n",
 
     end: "\t\teyes.close();\n" +
     "\t});\n" +
@@ -24,6 +24,8 @@ builder.selenium2.io.addLangFormatter({
             "\t\teyes.checkRegionBy(by.{locatorBy}({locator}), {title}); \n",
         "eyes.checkRegion":
             "\t\teyes.checkRegion({width: {width}, height: {height}, top: {top}, left: {left}}, {title}); \n",
+        "setWindowSize":
+            "\t\teyes.setViewportSize({width: {width}, height: {height}});\n",
         //--- navigation
         "get":
             "\t\tbrowser.get({url});\n",

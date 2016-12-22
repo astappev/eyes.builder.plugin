@@ -1,7 +1,32 @@
-var interface = {
+applitools.interface = {
     settingsDialog: null,
 
     init: function () {
+        builder.gui.menu.addItem('file', _t('__applitools_settings_menu'), 'file-applitools-settings', function() {
+            applitools.interface.settingsPanel.show();
+        });
+
+        builder.gui.menu.addMenu(_t('__applitools'), 'applitools');
+        builder.gui.menu.addItem('applitools', _t('__applitools_record_window'), 'applitools-record-window');
+        builder.gui.menu.addItem('applitools', _t('__applitools_record_element'), 'applitools-record-element');
+        builder.gui.menu.addItem('applitools', _t('__applitools_record_region'), 'applitools-record-region');
+
+        jQuery('#record-stop-button').click(function () {
+            applitools.closeSession();
+        });
+
+        jQuery(document).on('click', '#applitools-record-window', function () {
+            applitools.validateWindow();
+        });
+
+        jQuery(document).on('click', '#applitools-record-element', function () {
+            applitools.validateElement();
+        });
+
+        jQuery(document).on('click', '#applitools-record-region', function () {
+            applitools.validateRegion();
+        });
+
         // load styles
         var path = builder.plugins.getResourcePath('applitools', 'styles.css');
         var link = document.createElement('link');
@@ -10,26 +35,15 @@ var interface = {
         document.getElementsByTagName('head')[0].appendChild(link);
 
         // add spinner into recorder
-        $("html > body").append("<div id='fullpage-spinner' class='spinner'><span>Please wait...</span></div>");
-        this.spinner.element = $("#fullpage-spinner");
-
-        $('#panels').append("<div id='applitools-panel' class='panel'></div>");
-        this.applitoolsPanel.element = $("#applitools-panel");
-
-        $(document).on('click', '#applitools-record-window', function () {
-            applitools.checkWindow();
-        });
-
-        $(document).on('click', '#applitools-record-element', function () {
-            applitools.checkElement();
-        });
-
-        $(document).on('click', '#applitools-record-region', function () {
-            applitools.checkRegion();
-        });
+        jQuery("html > body").append("<div id='fullpage-spinner' class='spinner'><span>Please wait...</span></div>");
+        this.spinner.element = jQuery("#fullpage-spinner");
 
         // add panels
-        $('#panels #record-panel').prepend("<a href='#' id='applitools-record-window' class='button button-applitools'>" + _t('__applitools_record_window') + "</a>" +
+        var $panels = jQuery('#panels');
+        $panels.append("<div id='applitools-panel' class='panel'></div>");
+        this.applitoolsPanel.element = jQuery("#applitools-panel");
+
+        $panels.find('#record-panel').prepend("<a href='#' id='applitools-record-window' class='button button-applitools'>" + _t('__applitools_record_window') + "</a>" +
         "<a href='#' id='applitools-record-element' class='button button-applitools'>" + _t('__applitools_record_element') + "</a>" +
         "<a href='#' id='applitools-record-region' class='button button-applitools'>" + _t('__applitools_record_region') + "</a><br/>");
 
@@ -43,11 +57,28 @@ var interface = {
                 newNode('table', {style: 'border: none;', id: 'rc-options-table'},
                     newNode('tr',
                         newNode('td', _t('__applitools_apikey') + " "),
-                        newNode('td', newNode('input', {id: 'applitools_apikey', type: 'text', value: apiKey})),
+                        newNode('td', newNode('input', {
+                            id: 'applitools_apikey',
+                            type: 'text',
+                            value: apiKey
+                        })),
                         newNode('td',
                             newNode('span', ' ('),
                             newNode('a', {'href': 'https://eyes.applitools.com/app/tutorial', 'target': '_blank'}, _t('__applitools_lookup_api_key')),
                             newNode('span', ') ')
+                        )
+                    )
+                ),
+                newNode('hr'),
+                newNode('h3', _t('__applitools_settings_recording')),
+                newNode('table', {style: 'border: none;', id: 'rc-options-table'},
+                    newNode('tr',
+                        newNode('td', newNode('input', {
+                            id: 'applitools_is_send_on_recording',
+                            type:'checkbox'
+                        }), _t('__applitools_is_send_on_recording')),
+                        newNode('td',
+                            newNode('span', _t('__applitools_is_send_on_recording_description'))
                         )
                     )
                 ),
@@ -64,8 +95,7 @@ var interface = {
                         newNode('td', newNode('input', {
                             id: 'applitools_app_name',
                             type: 'text',
-                            value: appName,
-                            'change': function() {}
+                            value: appName
                         }))
                     ),
                     newNode('tr',
@@ -73,8 +103,7 @@ var interface = {
                         newNode('td', newNode('input', {
                             id: 'applitools_test_name',
                             type: 'text',
-                            value: testName,
-                            'change': function() {}
+                            value: testName
                         }))
                     )
                 ),
@@ -85,13 +114,15 @@ var interface = {
                         'class': 'button',
                         'id': 'applitools-cancel',
                         'click': function() {
+                            var apiKey = jQuery('#applitools_apikey').val().trim();
                             var appName = jQuery('#applitools_app_name').val();
                             var testName = jQuery('#applitools_test_name').val();
-                            var apiKey = jQuery('#applitools_apikey').val().trim();
-                            if (applitools.setApiKey(apiKey)) {
+                            var isSendOnRecording = jQuery('#applitools_is_send_on_recording').prop('checked');
+                            if (applitools.setApiKey(apiKey) || !isSendOnRecording) {
                                 applitools.setAppName(appName);
                                 applitools.setTestName(testName);
-                                interface.settingsPanel.hide();
+                                applitools.setIsSendOnRecording(isSendOnRecording);
+                                applitools.interface.settingsPanel.hide();
                             } else {
                                 alert(_t('__applitools_alert_empty_apikey_on_save'));
                             }
@@ -104,10 +135,10 @@ var interface = {
     controlButtons: {
         element: null,
         show: function() {
-            $('.button-applitools').show();
+            jQuery('.button-applitools').show();
         },
         hide: function() {
-            $('.button-applitools').hide();
+            jQuery('.button-applitools').hide();
         }
     },
 
@@ -115,8 +146,11 @@ var interface = {
         element: null,
         show: function() {
             if (this.element) { return; }
-            this.element = interface.settingsDialog;
+            this.element = applitools.interface.settingsDialog;
             builder.dialogs.show(this.element);
+            if (applitools.getIsSendOnRecording()) {
+                jQuery('#applitools_is_send_on_recording').prop('checked', true);
+            }
         },
         hide: function() {
             jQuery(this.element).remove();
@@ -204,7 +238,7 @@ var interface = {
         }
 
         function collectStepsIds() {
-            var recordedSteps = jQuery('#steps .b-step').get();
+            var recordedSteps = jQuery('#steps').find('.b-step').get();
             var stepsIDs = [];
             for (var i = 0, len = recordedSteps.length; i < len; i++) {
                 if (jQuery(recordedSteps[i]).find('.b-method').attr('name').startsWith("eyes.")) {

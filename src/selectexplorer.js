@@ -587,10 +587,6 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
         }
     };
 
-    this.close = function () {
-        actionClose();
-    };
-
     // Define widgets:
     this.widget.document = top_window.document;
     this.widget.window = this.widget.document.defaultView;
@@ -598,7 +594,7 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
     var styles = this.widget.document.createElement('style');
     styles.type = 'text/css';
     var path = builder.plugins.getResourcePath('applitools', 'widgetstyles.css');
-    interface.loadStylesFromFile(path, styles);
+    applitools.interface.loadStylesFromFile(path, styles);
 
     this.widget.root = this.widget.document.documentElement;
     this.widget.overlay = this.widget.document.createElement('selectWidget-overlay');
@@ -646,11 +642,8 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
     bindEvent(this.widget.selection_bottom_right, 'mousedown', actionBottomRight);
     bindEvent(this.widget.selection_left, 'mousedown', actionLeft);
     bindEvent(this.widget.selection_right, 'mousedown', actionRight);
-};
 
-applitools.SelectExplorer.prototype = {
-    destroy: function () {
-        this.close();
-    }
+    this.destroy = function () {
+        actionClose();
+    };
 };
-

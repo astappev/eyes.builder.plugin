@@ -11,16 +11,15 @@
   "icon": "icon.png",
   "load": [
     "lib/eyes-browser.min.js",
-    "src/translations.js",
-    "src/screenshot.js",
-    "src/interface.js",
-    "src/applitools.js",
-    "src/selectwidget.js",
-    "src/selectexplorer.js",
-    "src/eyessession.js",
     "src/exports/java.js",
     "src/exports/node-selenium.js",
     "src/exports/node-protractor.js",
+    "src/translations.js",
+    "src/applitools.js",
+    "src/screenshot.js",
+    "src/interface.js",
+    "src/selectexplorer.js",
+    "src/playback.js",
     "plugin.js"
   ]
 }

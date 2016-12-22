@@ -23,7 +23,7 @@ builder.selenium2.io.addLangFormatter({
     "\tconsole.log('There was an uncaught exception: ' + err);\n" +
     "});\n" +
     "\n" +
-    "eyes.open(driver, '" + applitools.appName + "', '" + applitools.testName + "', {width: " + applitools.getRecWinViewportSize().width + ", height: " + applitools.getRecWinViewportSize().height + "}).then(function(driver) {\n",
+    "eyes.open(driver, '" + applitools.appName + "', '" + applitools.testName + "').then(function(driver) {\n",
     end:
     "\teyes.close();\n" +
     "\tdriver.quit();\n" +
@@ -36,6 +36,8 @@ builder.selenium2.io.addLangFormatter({
             "\teyes.checkRegionBy(By.{locatorBy}({locator}), {title}); \n",
         "eyes.checkRegion":
             "\teyes.checkRegion({width: {width}, height: {height}, top: {top}, left: {left}}, {title}); \n",
+        "setWindowSize":
+            "\teyes.setViewportSize({width: {width}, height: {height}});\n",
         //--- navigation
         "get" :
             "\tdriver.get({url}); \n",
@@ -112,11 +114,9 @@ builder.selenium2.io.addLangFormatter({
             "\tdriver.switchTo().alert().accept(); \n",
         "dismissAlert" :
             "\tdriver.switchTo().alert().dismiss(); \n",
-        "setWindowSize" :
-            "\tdriver.manage().window().setSize({width}, {height}); \n",
         //--- store
         "store":
-            "\tdriver.controlFlow().execute(function () {  ${{variable}} = '' + {text}; }); \n",
+            "\tdriver.controlFlow().execute(function () {  ${{variable}} = '' + {text}; }); \n"
     },
     assert: function(step, escapeValue, doSubs, getter) {
         if (step.negated) {

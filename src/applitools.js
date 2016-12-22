@@ -1,49 +1,66 @@
 var applitools = {
-    eyesSession: null,
     apiKey: null,
     appName: null,
     testName: null,
-    isCustomTypesLoaded: false,
-    loginManager: Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager),
-    loginInfo: new Components.Constructor("@mozilla.org/login-manager/loginInfo;1", Components.interfaces.nsILoginInfo, "init"),
+    isSendOnRecording: null,
 
+    eyes: null,
+    eyesPromise: null,
+    promiseFactory: null,
     customTypes: {
         "eyes.checkWindow": {
             "params": ["title"],
             "docs": {
+                "params": {
+                    "title": "Tag for image."
+                },
                 "description": "Capture full screen of the page."
             }
         },
         "eyes.checkElement": {
             "params": ["locator", "title"],
             "docs": {
+                "params": {
+                    "locator": "How to find the element to be checked.",
+                    "title": "Tag for image."
+                },
                 "description": "Capture screen of the element."
             }
         },
         "eyes.checkRegion": {
             "params": ["top", "left", "width", "height", "title"],
             "docs": {
+                "params": {
+                    "top": "Top offset of the selected region.",
+                    "left": "Left offset of the selected region.",
+                    "width": "Width of the selected region.",
+                    "height": "Height of the selected region.",
+                    "title": "Tag for image."
+                },
                 "description": "Capture screen of region on the page."
             }
         }
     },
 
     init: function () {
-        if (!this.isCustomTypesLoaded) {
-            var items = [];
-            for (var n in this.customTypes) {
-                if (this.customTypes.hasOwnProperty(n)) {
-                    builder.selenium2.__stepData[n] = this.customTypes[n].params;
-                    builder.selenium2.docs[n] = this.customTypes[n].docs;
+        var items = [];
+        for (var n in this.customTypes) {
+            if (this.customTypes.hasOwnProperty(n)) {
+                builder.selenium2.__stepData[n] = this.customTypes[n].params;
+                builder.selenium2.docs[n] = this.customTypes[n].docs;
 
-                    builder.selenium2.stepTypes[n] = new builder.selenium2.StepType(n);
-                    items.push(builder.selenium2.stepTypes[n]);
-                }
+                builder.selenium2.stepTypes[n] = new builder.selenium2.StepType(n);
+                items.push(builder.selenium2.stepTypes[n]);
             }
-
-            builder.selenium2.categories.push([_t('__applitools'), items]);
-            this.isCustomTypesLoaded = true;
         }
+
+        builder.selenium2.categories.push([_t('__applitools'), items]);
+
+        this.promiseFactory = new window.EyesUtils.PromiseFactory(function (asyncAction) {
+            return new window.RSVP.Promise(asyncAction);
+        }, function () {
+            return window.RSVP.defer();
+        });
     },
 
     shutdown: function () {
@@ -51,10 +68,11 @@ var applitools = {
 
     getApiKey: function() {
         if (!this.apiKey) {
-            var logins = this.loginManager.findLogins({}, 'chrome://seleniumbuilder', null, 'Applitools API Key');
-            for (var i = 0, l = logins.length; i < l; i++) {
-                this.apiKey = logins[i].password;
-                break;
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.apiKey", defaultVal = null;
+            try {
+                this.apiKey = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : defaultVal;
+            } catch (e) {
+                this.apiKey = defaultVal;
             }
         }
 
@@ -62,34 +80,27 @@ var applitools = {
     },
 
     setApiKey: function(newApiKey) {
-        var logins = this.loginManager.findLogins({}, 'chrome://seleniumbuilder', null, 'Applitools API Key');
-        for (var i = 0; i < logins.length; i++) {
-            this.loginManager.removeLogin(logins[i]);
-        }
-        this.apiKey = null;
-
-        if (typeof(newApiKey) === 'string' && newApiKey.length >= 1) {
-            var loginInfo = new this.loginInfo(
-                'chrome://seleniumbuilder', null, 'Applitools API Key',
-                /*username*/      "api-key",
-                /*password*/      newApiKey,
-                /*usernameField*/ "",
-                /*passwordField*/ ""
-            );
-            this.loginManager.addLogin(loginInfo);
-            this.apiKey = newApiKey;
-            return true;
+        if (typeof(newApiKey) === 'string' && newApiKey.length > 0) {
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.apiKey";
+            try {
+                this.apiKey = newApiKey;
+                bridge.prefManager.setCharPref(prefName, this.apiKey);
+                return true;
+            } catch (e) {
+                console.error("Can't save apiKey", e);
+            }
         }
 
         return false;
     },
 
     getAppName: function () {
-        if (!this.appName) {
-            var prefName = "extensions.seleniumbuilder.plugins.applitools.appName";
+        if (this.appName === null) {
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.appName", defaultVal = null;
             try {
-                this.appName = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : null;
+                this.appName = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : defaultVal;
             } catch (e) {
+                this.appName = defaultVal;
             }
         }
 
@@ -97,21 +108,22 @@ var applitools = {
     },
 
     setAppName: function (newAppName) {
+        this.appName = newAppName;
         var prefName = "extensions.seleniumbuilder.plugins.applitools.appName";
         try {
-            bridge.prefManager.setCharPref(prefName, newAppName);
+            bridge.prefManager.setCharPref(prefName, this.appName);
         } catch (e) {
+            console.error("Can't save pref", e);
         }
-
-        this.appName = newAppName;
     },
 
     getTestName: function () {
-        if (!this.testName) {
-            var prefName = "extensions.seleniumbuilder.plugins.applitools.testName";
+        if (this.testName === null) {
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.testName", defaultVal = null;
             try {
-                this.testName = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : null;
+                this.testName = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : defaultVal;
             } catch (e) {
+                this.testName = defaultVal;
             }
         }
 
@@ -119,13 +131,36 @@ var applitools = {
     },
 
     setTestName: function (newTestName) {
+        this.testName = newTestName;
         var prefName = "extensions.seleniumbuilder.plugins.applitools.testName";
         try {
-            bridge.prefManager.setCharPref(prefName, newTestName);
+            bridge.prefManager.setCharPref(prefName, this.testName);
         } catch (e) {
+            console.error("Can't save pref", e);
+        }
+    },
+
+    getIsSendOnRecording: function () {
+        if (this.isSendOnRecording === null) {
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.isSendOnRecording", defaultVal = false;
+            try {
+                this.isSendOnRecording = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) === "true" : defaultVal;
+            } catch (e) {
+                this.isSendOnRecording = defaultVal;
+            }
         }
 
-        this.testName = newTestName;
+        return this.isSendOnRecording;
+    },
+
+    setIsSendOnRecording: function (value) {
+        this.isSendOnRecording = !!value;
+        var prefName = "extensions.seleniumbuilder.plugins.applitools.isSendOnRecording";
+        try {
+            bridge.prefManager.setCharPref(prefName, this.isSendOnRecording);
+        } catch (e) {
+            console.error("Can't save pref", e);
+        }
     },
 
     getRecWinTitle: function () {
@@ -140,9 +175,9 @@ var applitools = {
         };
     },
 
-    checkWindow: function (title) {
-        if (!this.getApiKey()) {
-            interface.settingsPanel.show();
+    validateWindow: function (title) {
+        if (this.getIsSendOnRecording() && !this.getApiKey()) {
+            applitools.interface.settingsPanel.show();
             alert(_t('__applitools_alert_empty_apikey'));
             return;
         }
@@ -151,19 +186,18 @@ var applitools = {
         var checkWindowStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkWindow"], title);
         builder.record.recordStep(checkWindowStep);
 
-        var scrObj = screenshot.wholePage();
-        builder.record.stop();
-        var promise = this.sendImage(scrObj, title);
-        if (promise) {
-            promise.then(function () {
+        if (this.getIsSendOnRecording()) {
+            builder.record.stop();
+            var scrObj = applitools.screenshot.wholePage();
+            this.checkImage(applitools.screenshot.canvasToBuffer(scrObj), title).then(function () {
                 builder.record.continueRecording();
             });
         }
     },
 
-    checkElement: function (title) {
-        if (!this.getApiKey()) {
-            interface.settingsPanel.show();
+    validateElement: function (title) {
+        if (this.getIsSendOnRecording() && !this.getApiKey()) {
+            applitools.interface.settingsPanel.show();
             alert(_t('__applitools_alert_empty_apikey'));
             return;
         }
@@ -175,7 +209,7 @@ var applitools = {
             builder.record.stop();
             jQuery('#record-panel').show();
             bridge.focusRecordingTab();
-            interface.notificationBox.show(_t('__applitools_check_element_notification_message'));
+            applitools.interface.notificationBox.show(_t('__applitools_check_element_notification_message'));
             builder.record.verifyExplorer = new builder.VerifyExplorer(
                 bridge.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
@@ -184,15 +218,14 @@ var applitools = {
                     var checkElementStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkElement"], locator, title);
                     builder.record.recordStep(checkElementStep);
                     jQuery('#record-panel').hide();
-                    interface.notificationBox.hide();
+                    applitools.interface.notificationBox.hide();
                     bridge.focusRecorderWindow();
 
-                    var recWindow = bridge.getRecordingWindow().document.defaultView;
-                    var rect = locator.__originalElement.getBoundingClientRect();
-                    var scrObj = screenshot.pageRegion(rect.x + recWindow.pageXOffset, rect.y + recWindow.pageYOffset, rect.width, rect.height);
-                    var promise = applitools.sendImage(scrObj, title);
-                    if (promise) {
-                        promise.then(function () {
+                    if (applitools.getIsSendOnRecording()) {
+                        var recWindow = bridge.getRecordingWindow().document.defaultView;
+                        var rect = locator.__originalElement.getBoundingClientRect();
+                        var scrObj = applitools.screenshot.pageRegion(rect.x + recWindow.pageXOffset, rect.y + recWindow.pageYOffset, rect.width, rect.height);
+                        applitools.checkImage(applitools.screenshot.canvasToBuffer(scrObj), title).then(function () {
                             builder.record.stopVerifyExploring();
                         });
                     } else {
@@ -206,9 +239,9 @@ var applitools = {
         }
     },
 
-    checkRegion: function (title) {
-        if (!this.getApiKey()) {
-            interface.settingsPanel.show();
+    validateRegion: function (title) {
+        if (this.getIsSendOnRecording() && !this.getApiKey()) {
+            applitools.interface.settingsPanel.show();
             alert(_t('__applitools_alert_empty_apikey'));
             return;
         }
@@ -220,7 +253,7 @@ var applitools = {
             builder.record.stop();
             jQuery('#record-panel').show();
             bridge.focusRecordingTab();
-            interface.notificationBox.show(_t('__applitools_check_region_notification_message'));
+            applitools.interface.notificationBox.show(_t('__applitools_check_region_notification_message'));
             builder.record.verifyExplorer = new applitools.SelectExplorer(
                 bridge.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
@@ -236,13 +269,12 @@ var applitools = {
                     );
                     builder.record.recordStep(checkRegionStep);
                     jQuery('#record-panel').hide();
-                    interface.notificationBox.hide();
+                    applitools.interface.notificationBox.hide();
                     bridge.focusRecorderWindow();
 
-                    var scrObj = screenshot.pageRegion(region.left, region.top, region.width, region.height);
-                    var promise = applitools.sendImage(scrObj, title);
-                    if (promise) {
-                        promise.then(function () {
+                    if (applitools.getIsSendOnRecording()) {
+                        var scrObj = applitools.screenshot.pageRegion(region.left, region.top, region.width, region.height);
+                        applitools.checkImage(applitools.screenshot.canvasToBuffer(scrObj), title).then(function () {
                             builder.record.stopVerifyExploring();
                         });
                     } else {
@@ -255,61 +287,114 @@ var applitools = {
         }
     },
 
-    sendImage: function (scrObj, title) {
-        var apiKey = this.getApiKey();
-        if (apiKey) {
-            if (!this.eyesSession) {
-                var location = bridge.getBrowser().location;
-                var appName = this.getAppName() || location.hostname;
-                var testName = this.getTestName() || location.pathname;
-                this.eyesSession = new applitools.EyesSession(appName, testName, this.getRecWinViewportSize(), apiKey);
-            } else if (this.eyesSession.isClosed) {
+    getSession: function () {
+        var that = this;
+        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+            var apiKey = that.getApiKey();
+            if (!apiKey) {
+                reject("API key is empty!");
                 return;
             }
 
-            interface.spinner.show();
-            try {
-                return this.eyesSession.sendImage(scrObj.canvas, title).then(function () {
-                    interface.spinner.hide();
-                    console.log("image sent");
-                }, function (err) {
-                    interface.spinner.hide();
-                    console.error("Error during sendImage", err);
-                });
-            } catch (err) {
-                interface.spinner.hide();
-                console.error(err);
+            if (!that.eyes) {
+                that.eyes = new window.EyesImages.Eyes();
+                that.eyes.setApiKey(apiKey);
+                that.eyes.setInferredEnvironment("useragent:" + window.navigator.userAgent);
+                that.eyes.setHostingApp("Selenium builder");
+                that.eyesPromise = null;
             }
-        }
+
+            if (!that.eyesPromise) {
+                var location = bridge.getBrowser().location;
+                var appName = that.getAppName() || location.hostname;
+                var testName = that.getTestName() || location.pathname;
+                var viewportSize = that.getRecWinViewportSize();
+                that.eyesPromise = that.eyes.open(appName, testName, viewportSize).then(function () {
+                    console.log("Eyes: new session opened.");
+                    resolve();
+                }, function (err) {
+                    reject("Can't open session:" + err);
+                });
+            } else {
+                that.eyesPromise.then(function () {
+                    resolve();
+                });
+            }
+        });
+    },
+
+    checkImage: function (imageBuffer, title) {
+        var that = this;
+        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+            applitools.interface.spinner.show();
+            return that.getSession().then(function () {
+                console.log("Eyes: checking image...");
+                return that.eyes.checkImage(imageBuffer, title).then(function (result) {
+                    console.log("Eyes: check image - done.", result);
+                    resolve(result);
+                }, function (err) {
+                    console.error("Eyes: error during checkImage:", err);
+                    reject(err);
+                }).then(function () {
+                    applitools.interface.spinner.hide();
+                });
+            }, function (err) {
+                console.error("Eyes: can't get session:", err);
+                reject(err);
+            });
+        });
+    },
+
+    checkRegion: function (region, imageBuffer, title) {
+        var that = this;
+        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+            applitools.interface.spinner.show();
+            return that.getSession().then(function () {
+                console.log("Eyes: checking region...");
+                return that.eyes.checkRegion(region, imageBuffer, title).then(function (result) {
+                    console.log("Eyes: check region - done.", result);
+                    resolve(result);
+                }, function (err) {
+                    console.error("Eyes: error during checkRegion:", err);
+                    reject(err);
+                }).then(function () {
+                    applitools.interface.spinner.hide();
+                });
+            }, function (err) {
+                console.error("Eyes: can't get session:", err);
+                reject(err);
+            });
+        });
     },
 
     closeSession: function () {
-        if (this.eyesSession) {
-            console.log("close session");
-            interface.spinner.show();
-            try {
-                var promise = this.eyesSession.close();
-                if(promise) {
-                    return promise.then(function (data) {
-                        interface.processTestResult(data);
-                        console.log("session closed");
-                    }, function (err) {
-                        console.error("Session can't be closed", err);
-                    }).then(function () {
-                        interface.spinner.hide();
-                    });
-                }
-            } catch (err) {
-                console.error(err);
+        var that = this;
+        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+            if (!(that.eyes && that.eyes.isOpen())) {
+                resolve();
+                return;
             }
 
-            interface.spinner.hide();
-        }
+            applitools.interface.spinner.show();
+            return that.getSession().then(function () {
+                console.log("Eyes: closing session...");
+                return that.eyes.close(false);
+            }, function () {
+                return that.eyes.abortIfNotClosed();
+            }).then(function (data) {
+                console.log("Eyes: session closed.", data);
+                applitools.interface.processTestResult(data);
+                resolve(data);
+            }, function (err) {
+                console.error("Eyes: can't close session:", err);
+                reject(err);
+            }).then(function () {
+                applitools.interface.spinner.hide();
+            });
+        });
     },
 
     forceCloseSession: function () {
-        if (this.eyesSession) {
-            this.eyesSession = null;
-        }
+        this.eyes = null;
     }
 };

@@ -22,7 +22,7 @@ builder.selenium2.io.addLangFormatter({
     "\t\tEyes eyes = new Eyes();\n" +
     "\t\teyes.setApiKey('" + (applitools.getApiKey() || "<YOUR_API_KEY>") + "');\n" +
     "\t\ttry {\n" +
-    "\t\t\tdriver = eyes.open(driver, '" + applitools.getAppName() + "', '" + applitools.getTestName() + "', new RectangleSize(" + applitools.getRecWinViewportSize().width + ", " + applitools.getRecWinViewportSize().height + "));\n\n",
+    "\t\t\tdriver = eyes.open(driver, '" + applitools.getAppName() + "', '" + applitools.getTestName() + "');\n\n",
     end: "\n" +
     "\t\t\teyes.close();\n" +
     "\t\t} finally {\n" +
@@ -48,6 +48,8 @@ builder.selenium2.io.addLangFormatter({
             "\t\t\teyes.checkRegion(By.{locatorBy}({locator}), {title}); \n",
         "eyes.checkRegion":
             "\t\t\teyes.checkRegion(new Region({left}, {top}, {width}, {height}), -1, {title}); \n",
+        "setWindowSize":
+            "\t\t\teyes.setViewportSize(new RectangleSize({width}, {height}));\n",
         //--- navigation
         "get":
             "\t\t\tdriver.get({url});\n",
@@ -137,8 +139,6 @@ builder.selenium2.io.addLangFormatter({
             "\t\t\tdriver.switchTo().alert().accept();\n",
         "dismissAlert":
             "\t\t\tdriver.switchTo().alert().dismiss();\n",
-        "setWindowSize":
-            "\t\t\tdriver.manage().window().setSize(new Dimension({width}, {height}));\n",
         //--- store
         "store": "\t\t\t${{variable}:String} = \"\" + {text};\n"
     },
@@ -301,7 +301,7 @@ builder.selenium2.io.addLangFormatter({
         var esc = function (v) {
             var escapedValue = "\"" + v.replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\"";
             return escapedValue.replace(/\n/g, '\\n');
-        }
+        };
 
         // Don't escape numerical values.
         if (stepType == builder.selenium2.stepTypes.pause || stepType == builder.selenium2.stepTypes.setWindowSize) {
