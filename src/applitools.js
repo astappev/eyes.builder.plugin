@@ -289,7 +289,7 @@ var applitools = {
 
     getSession: function () {
         var that = this;
-        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+        return that.promiseFactory.makePromise(function (resolve, reject) {
             var apiKey = that.getApiKey();
             if (!apiKey) {
                 reject("API key is empty!");
@@ -325,7 +325,7 @@ var applitools = {
 
     checkImage: function (imageBuffer, title) {
         var that = this;
-        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+        return that.promiseFactory.makePromise(function (resolve, reject) {
             applitools.interface.spinner.show();
             return that.getSession().then(function () {
                 console.log("Eyes: checking image...");
@@ -347,7 +347,7 @@ var applitools = {
 
     checkRegion: function (region, imageBuffer, title) {
         var that = this;
-        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+        return that.promiseFactory.makePromise(function (resolve, reject) {
             applitools.interface.spinner.show();
             return that.getSession().then(function () {
                 console.log("Eyes: checking region...");
@@ -369,7 +369,7 @@ var applitools = {
 
     closeSession: function () {
         var that = this;
-        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+        return that.promiseFactory.makePromise(function (resolve, reject) {
             if (!(that.eyes && that.eyes.isOpen())) {
                 resolve();
                 return;
@@ -390,6 +390,7 @@ var applitools = {
                 reject(err);
             }).then(function () {
                 applitools.interface.spinner.hide();
+                that.eyes = null;
             });
         });
     },
