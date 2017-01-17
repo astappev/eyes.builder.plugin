@@ -2,7 +2,7 @@ var applitools = {
     apiKey: null,
     appName: null,
     testName: null,
-    isSendOnRecording: null,
+    isAskForMethodsTitle: null,
 
     eyes: null,
     eyesPromise: null,
@@ -94,6 +94,10 @@ var applitools = {
         return false;
     },
 
+    getDefaultAppName: function () {
+        return bridge.getRecordingWindow().location.hostname;
+    },
+
     getAppName: function () {
         if (this.appName === null) {
             var prefName = "extensions.seleniumbuilder.plugins.applitools.appName", defaultVal = null;
@@ -115,6 +119,10 @@ var applitools = {
         } catch (e) {
             console.error("Can't save pref", e);
         }
+    },
+
+    getDefaultTestName: function () {
+        return bridge.getRecordingWindow().location.pathname;
     },
 
     getTestName: function () {
@@ -140,24 +148,24 @@ var applitools = {
         }
     },
 
-    getIsSendOnRecording: function () {
-        if (this.isSendOnRecording === null) {
-            var prefName = "extensions.seleniumbuilder.plugins.applitools.isSendOnRecording", defaultVal = false;
+    getIsAskForMethodsTitle: function () {
+        if (this.isAskForMethodsTitle === null) {
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.isAskForMethodsTitle", defaultVal = false;
             try {
-                this.isSendOnRecording = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) === "true" : defaultVal;
+                this.isAskForMethodsTitle = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) === "true" : defaultVal;
             } catch (e) {
-                this.isSendOnRecording = defaultVal;
+                this.isAskForMethodsTitle = defaultVal;
             }
         }
 
-        return this.isSendOnRecording;
+        return this.isAskForMethodsTitle;
     },
 
-    setIsSendOnRecording: function (value) {
-        this.isSendOnRecording = !!value;
-        var prefName = "extensions.seleniumbuilder.plugins.applitools.isSendOnRecording";
+    setIsAskForMethodsTitle: function (value) {
+        this.isAskForMethodsTitle = !!value;
+        var prefName = "extensions.seleniumbuilder.plugins.applitools.isAskForMethodsTitle";
         try {
-            bridge.prefManager.setCharPref(prefName, this.isSendOnRecording);
+            bridge.prefManager.setCharPref(prefName, this.isAskForMethodsTitle);
         } catch (e) {
             console.error("Can't save pref", e);
         }
@@ -175,33 +183,17 @@ var applitools = {
         };
     },
 
-    validateWindow: function (title) {
-        if (this.getIsSendOnRecording() && !this.getApiKey()) {
-            applitools.interface.settingsPanel.show();
-            alert(_t('__applitools_alert_empty_apikey'));
-            return;
+    validateWindow: function () {
+        var title = applitools.getRecWinTitle();
+        if (applitools.getIsAskForMethodsTitle()) {
+            title = applitools.interface.titlePrompt(title);
         }
 
-        title = title || this.getRecWinTitle();
         var checkWindowStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkWindow"], title);
         builder.record.recordStep(checkWindowStep);
-
-        if (this.getIsSendOnRecording()) {
-            builder.record.stop();
-            var scrObj = applitools.screenshot.wholePage();
-            this.checkImage(applitools.screenshot.canvasToBuffer(scrObj), title).then(function () {
-                builder.record.continueRecording();
-            });
-        }
     },
 
-    validateElement: function (title) {
-        if (this.getIsSendOnRecording() && !this.getApiKey()) {
-            applitools.interface.settingsPanel.show();
-            alert(_t('__applitools_alert_empty_apikey'));
-            return;
-        }
-
+    validateElement: function () {
         if (builder.record.verifyExploring) {
             builder.record.stopVerifyExploring();
         } else {
@@ -214,38 +206,30 @@ var applitools = {
                 bridge.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
                 function(locator) {
-                    title = title || applitools.getRecWinTitle();
-                    var checkElementStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkElement"], locator, title);
-                    builder.record.recordStep(checkElementStep);
                     jQuery('#record-panel').hide();
-                    applitools.interface.notificationBox.hide();
-                    bridge.focusRecorderWindow();
 
-                    if (applitools.getIsSendOnRecording()) {
-                        var recWindow = bridge.getRecordingWindow().document.defaultView;
-                        var rect = locator.__originalElement.getBoundingClientRect();
-                        var scrObj = applitools.screenshot.pageRegion(rect.x + recWindow.pageXOffset, rect.y + recWindow.pageYOffset, rect.width, rect.height);
-                        applitools.checkImage(applitools.screenshot.canvasToBuffer(scrObj), title).then(function () {
-                            builder.record.stopVerifyExploring();
-                        });
-                    } else {
-                        // Don't immediately stop: this would cause the listener that prevents the click from
-                        // actually activating the selected element to be detached prematurely.
-                        setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
-                    }
+                    // Don't immediately stop: this would cause the listener that prevents the click from
+                    // actually activating the selected element to be detached prematurely.
+                    setTimeout(function() {
+                        applitools.interface.notificationBox.hide();
+                        builder.record.stopVerifyExploring();
+                        bridge.focusRecorderWindow();
+
+                        var title = applitools.getRecWinTitle();
+                        if (applitools.getIsAskForMethodsTitle()) {
+                            title = applitools.interface.titlePrompt(title);
+                        }
+
+                        var checkElementStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkElement"], locator, title);
+                        builder.record.recordStep(checkElementStep);
+                    }, 1);
                 },
                 true
             );
         }
     },
 
-    validateRegion: function (title) {
-        if (this.getIsSendOnRecording() && !this.getApiKey()) {
-            applitools.interface.settingsPanel.show();
-            alert(_t('__applitools_alert_empty_apikey'));
-            return;
-        }
-
+    validateRegion: function () {
         if (builder.record.verifyExploring) {
             builder.record.stopVerifyExploring();
         } else {
@@ -258,30 +242,30 @@ var applitools = {
                 bridge.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
                 function(region) {
-                    title = title || applitools.getRecWinTitle();
-                    var checkRegionStep = new builder.Step(
-                        builder.selenium2.stepTypes["eyes.checkRegion"],
-                        region.top.toString(),
-                        region.left.toString(),
-                        region.width.toString(),
-                        region.height.toString(),
-                        title
-                    );
-                    builder.record.recordStep(checkRegionStep);
                     jQuery('#record-panel').hide();
-                    applitools.interface.notificationBox.hide();
-                    bridge.focusRecorderWindow();
 
-                    if (applitools.getIsSendOnRecording()) {
-                        var scrObj = applitools.screenshot.pageRegion(region.left, region.top, region.width, region.height);
-                        applitools.checkImage(applitools.screenshot.canvasToBuffer(scrObj), title).then(function () {
-                            builder.record.stopVerifyExploring();
-                        });
-                    } else {
-                        // Don't immediately stop: this would cause the listener that prevents the click from
-                        // actually activating the selected element to be detached prematurely.
-                        setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
-                    }
+                    // Don't immediately stop: this would cause the listener that prevents the click from
+                    // actually activating the selected element to be detached prematurely.
+                    setTimeout(function() {
+                        applitools.interface.notificationBox.hide();
+                        builder.record.stopVerifyExploring();
+                        bridge.focusRecorderWindow();
+
+                        var title = applitools.getRecWinTitle();
+                        if (applitools.getIsAskForMethodsTitle()) {
+                            title = applitools.interface.titlePrompt(title);
+                        }
+
+                        var checkRegionStep = new builder.Step(
+                            builder.selenium2.stepTypes["eyes.checkRegion"],
+                            region.top.toString(),
+                            region.left.toString(),
+                            region.width.toString(),
+                            region.height.toString(),
+                            title
+                        );
+                        builder.record.recordStep(checkRegionStep);
+                    }, 1);
                 }
             );
         }
@@ -396,6 +380,9 @@ var applitools = {
     },
 
     forceCloseSession: function () {
-        this.eyes = null;
+        if (this.eyes) {
+            this.eyes.abortIfNotClosed();
+            this.eyes = null;
+        }
     }
 };

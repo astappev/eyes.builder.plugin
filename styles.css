@@ -75,6 +75,16 @@ a.button.button-applitools {
     background: linear-gradient(to bottom, #0fc6be 0%,#05978c 100%);
 }
 
+.panel#record-panel {
+    position: relative;
+}
+
+.panel#record-panel #record-spinner {
+    position: absolute;
+    top: 14px;
+    right: 0;
+}
+
 .panel#applitools-panel {
     font-size: 130%;
     padding: 10px;

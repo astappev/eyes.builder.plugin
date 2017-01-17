@@ -16,7 +16,6 @@
     "src/exports/node-protractor.js",
     "src/translations.js",
     "src/applitools.js",
-    "src/screenshot.js",
     "src/interface.js",
     "src/selectexplorer.js",
     "src/playback.js",
