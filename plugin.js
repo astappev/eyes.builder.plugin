@@ -52,12 +52,12 @@ builder.record.startRecording = function(urlText, seleniumVersion, deleteCookies
     builder.pageState.addListener(builder.record.pageLoadListener);
     window.sebuilder.getRecordingWindow().location = url.href();
 
+    // Close session if opened
+    applitools.forceCloseSession();
     // Show controls buttons for quick usage of validate methods
     applitools.interface.controlButtons.show();
     // Hide panel with results of previous tests ()if opened
     applitools.interface.applitoolsPanel.hide();
-    // Close session if opened
-    applitools.forceCloseSession();
 };
 
 // Override start recording method
@@ -79,7 +79,11 @@ builder.selenium2.rcPlayback.shutdown = (function() {
     return function() {
         console.log("builder.selenium2.rcPlayback.shutdown()");
         var result = cached_function.apply(this, arguments);
-        applitools.closeSession();
+        if (arguments[0].currentStep.outcome < builder.stepdisplay.state.ERROR) {
+            applitools.closeSession();
+        } else {
+            applitools.forceCloseSession();
+        }
         return result;
     };
 })();
@@ -91,6 +95,7 @@ builder.record.continueRecording = (function() {
         console.log("builder.record.continueRecording()");
         var result = cached_function.apply(this, arguments);
         applitools.interface.applitoolsPanel.hide();
+        applitools.interface.controlButtons.show();
         return result;
     };
 })();

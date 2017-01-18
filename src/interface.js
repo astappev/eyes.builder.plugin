@@ -96,10 +96,6 @@ applitools.interface = {
             applitools.validateRegion();
         });
 
-        jQuery('#record-stop-button').click(function () {
-            applitools.closeSession();
-        });
-
         jQuery('#edit-clearresults').click(function() {
             jQuery('#applitools-panel').hide();
         });
