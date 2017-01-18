@@ -584,6 +584,12 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
         }
     };
 
+    var createElementWithClassName = function (document, className) {
+        var element = document.createElement('div');
+        element.className = className;
+        return element;
+    };
+
     // Define widgets:
     this.widget.document = top_window.document;
     this.widget.window = this.widget.document.defaultView;
@@ -594,17 +600,17 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
     applitools.interface.loadStylesFromFile(path, styles);
 
     this.widget.root = this.widget.document.documentElement;
-    this.widget.overlay = this.widget.document.createElement('selectWidget-overlay');
-    this.widget.selection = this.widget.document.createElement('selectWidget-selection');
-    this.widget.selection_inner = this.widget.document.createElement('selectWidget-selection-inner');
-    this.widget.selection_top = this.widget.document.createElement('selectWidget-selection-top');
-    this.widget.selection_top_left = this.widget.document.createElement('selectWidget-selection-top-left');
-    this.widget.selection_top_right = this.widget.document.createElement('selectWidget-selection-top-right');
-    this.widget.selection_bottom = this.widget.document.createElement('selectWidget-selection-bottom');
-    this.widget.selection_bottom_left = this.widget.document.createElement('selectWidget-selection-bottom-left');
-    this.widget.selection_bottom_right = this.widget.document.createElement('selectWidget-selection-bottom-right');
-    this.widget.selection_left = this.widget.document.createElement('selectWidget-selection-left');
-    this.widget.selection_right = this.widget.document.createElement('selectWidget-selection-right');
+    this.widget.overlay = createElementWithClassName(this.widget.document, 'applitools-sw-overlay');
+    this.widget.selection = createElementWithClassName(this.widget.document, 'applitools-sw-selection');
+    this.widget.selection_inner = createElementWithClassName(this.widget.document, 'applitools-sw-selection-inner');
+    this.widget.selection_top = createElementWithClassName(this.widget.document, 'applitools-sw-selection-top');
+    this.widget.selection_top_left = createElementWithClassName(this.widget.document, 'applitools-sw-selection-top-left');
+    this.widget.selection_top_right = createElementWithClassName(this.widget.document, 'applitools-sw-selection-top-right');
+    this.widget.selection_bottom = createElementWithClassName(this.widget.document, 'applitools-sw-selection-bottom');
+    this.widget.selection_bottom_left = createElementWithClassName(this.widget.document, 'applitools-sw-selection-bottom-left');
+    this.widget.selection_bottom_right = createElementWithClassName(this.widget.document, 'applitools-sw-selection-bottom-right');
+    this.widget.selection_left = createElementWithClassName(this.widget.document, 'applitools-sw-selection-left');
+    this.widget.selection_right = createElementWithClassName(this.widget.document, 'applitools-sw-selection-right');
 
     this.widget.root.appendChild(styles);
     this.widget.root.appendChild(this.widget.overlay);

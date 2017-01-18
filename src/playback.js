@@ -20,9 +20,12 @@ var JS_GET_CONTENT_ENTIRE_SIZE =
 builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
     var title = builder.selenium2.rcPlayback.param(r, "title");
 
+    playbackUtils.updateProgressStatus(r, 1);
     playbackUtils.getScreenshot(r).then(function (screenshot) {
+        playbackUtils.updateProgressStatus(r, 55);
         return screenshot.asObject();
     }).then(function (imageObj) {
+        playbackUtils.updateProgressStatus(r, 60);
         bridge.focusRecorderWindow();
         return applitools.checkImage(imageObj.imageBuffer, title);
     }).then(function (result) {
@@ -35,14 +38,18 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
 builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
     var title = builder.selenium2.rcPlayback.param(r, "title");
     var locator = builder.selenium2.rcPlayback.param(r, "locator");
-
     var elRegion;
+
+    playbackUtils.updateProgressStatus(r, 1);
     playbackUtils.getRegionByElement(r, locator).then(function (region) {
         elRegion = region;
+        playbackUtils.updateProgressStatus(r, 10);
         return playbackUtils.getScreenshot(r);
     }).then(function (screenshot) {
+        playbackUtils.updateProgressStatus(r, 55);
         return screenshot.asObject();
     }).then(function (imageObj) {
+        playbackUtils.updateProgressStatus(r, 60);
         bridge.focusRecorderWindow();
         return applitools.checkRegion(elRegion, imageObj.imageBuffer, title);
     }).then(function (result) {
@@ -61,9 +68,12 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
         height: parseInt(builder.selenium2.rcPlayback.param(r, "height"), 10)
     };
 
+    playbackUtils.updateProgressStatus(r, 1);
     playbackUtils.getScreenshot(r).then(function (screenshot) {
+        playbackUtils.updateProgressStatus(r, 55);
         return screenshot.asObject();
     }).then(function (imageObj) {
+        playbackUtils.updateProgressStatus(r, 60);
         bridge.focusRecorderWindow();
         return applitools.checkRegion(region, imageObj.imageBuffer, title);
     }).then(function (result) {
@@ -74,6 +84,10 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
 };
 
 var playbackUtils = {
+    updateProgressStatus: function (r, percentage) {
+        r.stepStateCallback(r, r.script, r.currentStep, r.currentStepIndex, builder.stepdisplay.state.NO_CHANGE, null, null, percentage);
+    },
+
     getViewportSize: function (r) {
         return applitools.promiseFactory.makePromise(function (resolve) {
             builder.selenium2.rcPlayback.send(r, "GET", "/window_handle", "", function (r, handle) {

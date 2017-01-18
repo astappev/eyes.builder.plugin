@@ -5,7 +5,6 @@ var applitools = {
     isAskForMethodsTitle: null,
 
     eyes: null,
-    eyesPromise: null,
     promiseFactory: null,
     customTypes: {
         "eyes.checkWindow": {
@@ -285,24 +284,20 @@ var applitools = {
                 that.eyes.setApiKey(apiKey);
                 that.eyes.setInferredEnvironment("useragent:" + window.navigator.userAgent);
                 that.eyes.setHostingApp("Selenium builder");
-                that.eyesPromise = null;
             }
 
-            if (!that.eyesPromise) {
-                var location = bridge.getBrowser().location;
-                var appName = that.getAppName() || location.hostname;
-                var testName = that.getTestName() || location.pathname;
+            if (!that.eyes.isOpen()) {
+                var appName = that.getAppName() || that.getDefaultAppName();
+                var testName = that.getTestName() || that.getDefaultTestName();
                 var viewportSize = that.getRecWinViewportSize();
-                that.eyesPromise = that.eyes.open(appName, testName, viewportSize).then(function () {
+                that.eyes.open(appName, testName, viewportSize).then(function () {
                     console.log("Eyes: new session opened.");
                     resolve();
                 }, function (err) {
                     reject("Can't open session:" + err);
                 });
             } else {
-                that.eyesPromise.then(function () {
-                    resolve();
-                });
+                resolve();
             }
         });
     },
@@ -310,17 +305,14 @@ var applitools = {
     checkImage: function (imageBuffer, title) {
         var that = this;
         return that.promiseFactory.makePromise(function (resolve, reject) {
-            applitools.interface.spinner.show();
             return that.getSession().then(function () {
                 console.log("Eyes: checking image...");
                 return that.eyes.checkImage(imageBuffer, title).then(function (result) {
-                    console.log("Eyes: check image - done.", result);
+                    console.log("Eyes: check image - done.");
                     resolve(result);
                 }, function (err) {
                     console.error("Eyes: error during checkImage:", err);
                     reject(err);
-                }).then(function () {
-                    applitools.interface.spinner.hide();
                 });
             }, function (err) {
                 console.error("Eyes: can't get session:", err);
@@ -332,17 +324,14 @@ var applitools = {
     checkRegion: function (region, imageBuffer, title) {
         var that = this;
         return that.promiseFactory.makePromise(function (resolve, reject) {
-            applitools.interface.spinner.show();
             return that.getSession().then(function () {
                 console.log("Eyes: checking region...");
                 return that.eyes.checkRegion(region, imageBuffer, title).then(function (result) {
-                    console.log("Eyes: check region - done.", result);
+                    console.log("Eyes: check region - done.");
                     resolve(result);
                 }, function (err) {
                     console.error("Eyes: error during checkRegion:", err);
                     reject(err);
-                }).then(function () {
-                    applitools.interface.spinner.hide();
                 });
             }, function (err) {
                 console.error("Eyes: can't get session:", err);
@@ -359,21 +348,19 @@ var applitools = {
                 return;
             }
 
-            applitools.interface.spinner.show();
             return that.getSession().then(function () {
                 console.log("Eyes: closing session...");
                 return that.eyes.close(false);
             }, function () {
                 return that.eyes.abortIfNotClosed();
             }).then(function (data) {
-                console.log("Eyes: session closed.", data);
+                console.log("Eyes: session closed.");
                 applitools.interface.processTestResult(data);
                 resolve(data);
             }, function (err) {
                 console.error("Eyes: can't close session:", err);
                 reject(err);
             }).then(function () {
-                applitools.interface.spinner.hide();
                 that.eyes = null;
             });
         });

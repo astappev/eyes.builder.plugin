@@ -1,4 +1,4 @@
-selectWidget-overlay {
+.applitools-sw-overlay {
 	background: transparent;
 	cursor: crosshair;
 	height: 100%;
@@ -8,39 +8,39 @@ selectWidget-overlay {
 	width: 100%;
 	z-index: 2147483647;
 }
-selectWidget-overlay.x-ray {
+.applitools-sw-overlay.x-ray {
 	cursor: default;
 }
-selectWidget-selection,
-selectWidget-selection * {
+.applitools-sw-selection,
+.applitools-sw-selection * {
 	-moz-box-sizing: border-box;
 	display: block;
 }
-selectWidget-selection {
+.applitools-sw-selection {
 	background: transparent;
 	border: none;
 	box-shadow: 0 0 0 100000px rgba(0, 0, 0, 0.6);
 	overflow: hidden;
 }
-selectWidget-btnBox ,
-selectWidget-selection {
+.applitools-sw-btnBox,
+.applitools-sw-selection {
 	position: absolute;
 	z-index: 2147483647;
 }
-selectWidget-selection.x-ray {
+.applitools-sw-selection.x-ray {
 	background: hsla(70, 100%, 70%, 0.4);
 }
-selectWidget-selection-inner {
+.applitools-sw-selection-inner {
 	background: 0 !important;
 	cursor: move;
 	height: 100%;
 	overflow: hidden;
 	width: 100%;
 }
-selectWidget-selection.x-ray selectWidget-selection-inner {
+.applitools-sw-selection.x-ray .applitools-sw-selection-inner {
 	display: none;
 }
-selectWidget-selection-top {
+.applitools-sw-selection-top {
 	cursor: n-resize;
 	height: 8px;
 	left: 8px;
@@ -48,7 +48,7 @@ selectWidget-selection-top {
 	right: 8px;
 	top: 0;
 }
-selectWidget-selection-top-left {
+.applitools-sw-selection-top-left {
 	cursor: nw-resize;
 	height: 8px;
 	left: 0;
@@ -56,7 +56,7 @@ selectWidget-selection-top-left {
 	top: 0;
 	width: 8px;
 }
-selectWidget-selection-top-right {
+.applitools-sw-selection-top-right {
 	cursor: ne-resize;
 	height: 8px;
 	position: absolute;
@@ -64,7 +64,7 @@ selectWidget-selection-top-right {
 	top: 0;
 	width: 8px;
 }
-selectWidget-selection-bottom {
+.applitools-sw-selection-bottom {
 	bottom: 0;
 	cursor: s-resize;
 	height: 8px;
@@ -72,7 +72,7 @@ selectWidget-selection-bottom {
 	position: absolute;
 	right: 8px;
 }
-selectWidget-selection-bottom-left {
+.applitools-sw-selection-bottom-left {
 	bottom: 0;
 	cursor: sw-resize;
 	height: 8px;
@@ -80,7 +80,7 @@ selectWidget-selection-bottom-left {
 	position: absolute;
 	width: 8px;
 }
-selectWidget-selection-bottom-right {
+.applitools-sw-selection-bottom-right {
 	bottom: 0;
 	cursor: se-resize;
 	height: 8px;
@@ -88,7 +88,7 @@ selectWidget-selection-bottom-right {
 	right: 0;
 	width: 8px;
 }
-selectWidget-selection-left {
+.applitools-sw-selection-left {
 	bottom: 8px;
 	cursor: w-resize;
 	left: 0;
@@ -96,7 +96,7 @@ selectWidget-selection-left {
 	top: 8px;
 	width: 8px;
 }
-selectWidget-selection-right {
+.applitools-sw-selection-right {
 	bottom: 8px;
 	cursor: e-resize;
 	position: absolute;
@@ -104,48 +104,48 @@ selectWidget-selection-right {
 	top: 8px;
 	width: 8px;
 }
-selectWidget-overlay[state = "selecting"],
-selectWidget-selection[state = "selecting"],
-selectWidget-selection[state = "selecting"] * {
+.applitools-sw-overlay[state = "selecting"],
+.applitools-sw-selection[state = "selecting"],
+.applitools-sw-selection[state = "selecting"] * {
 	cursor: crosshair;
 }
-selectWidget-overlay[state = "resize-top"],
-selectWidget-selection[state = "resize-top"],
-selectWidget-selection[state = "resize-top"] * {
+.applitools-sw-overlay[state = "resize-top"],
+.applitools-sw-selection[state = "resize-top"],
+.applitools-sw-selection[state = "resize-top"] * {
 	cursor: n-resize;
 }
-selectWidget-overlay[state = "resize-top-left"],
-selectWidget-selection[state = "resize-top-left"],
-selectWidget-selection[state = "resize-top-left"] * {
+.applitools-sw-overlay[state = "resize-top-left"],
+.applitools-sw-selection[state = "resize-top-left"],
+.applitools-sw-selection[state = "resize-top-left"] * {
 	cursor: nw-resize;
 }
-selectWidget-overlay[state = "resize-top-right"],
-selectWidget-selection[state = "resize-top-right"],
-selectWidget-selection[state = "resize-top-right"] * {
+.applitools-sw-overlay[state = "resize-top-right"],
+.applitools-sw-selection[state = "resize-top-right"],
+.applitools-sw-selection[state = "resize-top-right"] * {
 	cursor: ne-resize;
 }
-selectWidget-overlay[state = "resize-bottom"],
-selectWidget-selection[state = "resize-bottom"],
-selectWidget-selection[state = "resize-bottom"] * {
+.applitools-sw-overlay[state = "resize-bottom"],
+.applitools-sw-selection[state = "resize-bottom"],
+.applitools-sw-selection[state = "resize-bottom"] * {
 	cursor: s-resize;
 }
-selectWidget-overlay[state = "resize-bottom-left"],
-selectWidget-selection[state = "resize-bottom-left"],
-selectWidget-selection[state = "resize-bottom-left"] * {
+.applitools-sw-overlay[state = "resize-bottom-left"],
+.applitools-sw-selection[state = "resize-bottom-left"],
+.applitools-sw-selection[state = "resize-bottom-left"] * {
 	cursor: sw-resize;
 }
-selectWidget-overlay[state = "resize-bottom-right"],
-selectWidget-selection[state = "resize-bottom-right"],
-selectWidget-selection[state = "resize-bottom-right"] * {
+.applitools-sw-overlay[state = "resize-bottom-right"],
+.applitools-sw-selection[state = "resize-bottom-right"],
+.applitools-sw-selection[state = "resize-bottom-right"] * {
 	cursor: se-resize;
 }
-selectWidget-overlay[state = "resize-left"],
-selectWidget-selection[state = "resize-left"],
-selectWidget-selection[state = "resize-left"] * {
+.applitools-sw-overlay[state = "resize-left"],
+.applitools-sw-selection[state = "resize-left"],
+.applitools-sw-selection[state = "resize-left"] * {
 	cursor: w-resize;
 }
-selectWidget-overlay[state = "resize-right"],
-selectWidget-selection[state = "resize-right"],
-selectWidget-selection[state = "resize-right"] * {
+.applitools-sw-overlay[state = "resize-right"],
+.applitools-sw-selection[state = "resize-right"],
+.applitools-sw-selection[state = "resize-right"] * {
 	cursor: e-resize;
 }

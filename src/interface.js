@@ -13,10 +13,6 @@ applitools.interface = {
         link.setAttribute('rel', 'stylesheet');
         document.getElementsByTagName('head')[0].appendChild(link);
 
-        // add spinner into recorder
-        jQuery("html > body").append("<div id='fullpage-spinner' class='spinner'><span>Please wait...</span></div>");
-        this.spinner.element = jQuery("#fullpage-spinner");
-
         // add panels
         var $panels = jQuery('#panels');
         $panels.append("<div id='applitools-panel' class='panel'></div>");
@@ -104,6 +100,10 @@ applitools.interface = {
             applitools.closeSession();
         });
 
+        jQuery('#edit-clearresults').click(function() {
+            jQuery('#applitools-panel').hide();
+        });
+
         jQuery('#eyes-app-name')
             .val(applitools.getAppName())
             .attr("placeholder", applitools.getDefaultAppName())
@@ -148,16 +148,6 @@ applitools.interface = {
         hide: function() {
             jQuery(this.element).remove();
             this.element = null;
-        }
-    },
-
-    spinner: {
-        element: null,
-        show: function () {
-            this.element.show();
-        },
-        hide: function () {
-            this.element.hide();
         }
     },
 
@@ -243,7 +233,7 @@ applitools.interface = {
 
     loadStylesFromFile: function (file, styles) {
         var rawFile = new XMLHttpRequest();
-        rawFile.open("GET", file, false);
+        rawFile.open("GET", file);
         rawFile.onreadystatechange = function () {
             if(rawFile.readyState === 4 && (rawFile.status === 200 || rawFile.status == 0)) {
                 var text = rawFile.responseText;
