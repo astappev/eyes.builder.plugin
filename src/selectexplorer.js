@@ -127,11 +127,11 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
         var offsetX = position.left - event.pageX;
         var offsetY = position.top - event.pageY;
 
-        unbindEvent(that.widget.selection, 'mousemove', move);
-        unbindEvent(that.widget.selection, 'mouseup', stop);
-        unbindEvent(that.widget.overlay, 'mousemove', move);
-        unbindEvent(that.widget.overlay, 'mouseup', stop);
-        unbindEvent(that.widget.document, 'mouseleave', stop);
+        bindEvent(that.widget.selection, 'mousemove', move);
+        bindEvent(that.widget.selection, 'mouseup', stop);
+        bindEvent(that.widget.overlay, 'mousemove', move);
+        bindEvent(that.widget.overlay, 'mouseup', stop);
+        bindEvent(that.widget.document, 'mouseleave', stop);
         stopPropagation(event);
     };
 
@@ -217,9 +217,7 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
         if (width - left < setting.min_width) {
             width = setting.min_width;
             left = context.width - width;
-        }
-
-        else {
+        } else {
             width -= left;
         }
 
@@ -267,11 +265,11 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
 
         var context_top = initSelectionTop(event);
 
-        unbindEvent(that.widget.selection, 'mousemove', move);
-        unbindEvent(that.widget.selection, 'mouseup', stop);
-        unbindEvent(that.widget.overlay, 'mousemove', move);
-        unbindEvent(that.widget.overlay, 'mouseup', stop);
-        unbindEvent(that.widget.document, 'mouseleave', stop);
+        bindEvent(that.widget.selection, 'mousemove', move);
+        bindEvent(that.widget.selection, 'mouseup', stop);
+        bindEvent(that.widget.overlay, 'mousemove', move);
+        bindEvent(that.widget.overlay, 'mouseup', stop);
+        bindEvent(that.widget.document, 'mouseleave', stop);
         stopPropagation(event);
     };
 
@@ -299,11 +297,11 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
         var context_top = initSelectionTop(event);
         var context_left = initSelectionLeft(event);
 
-        unbindEvent(that.widget.selection, 'mousemove', move);
-        unbindEvent(that.widget.selection, 'mouseup', stop);
-        unbindEvent(that.widget.overlay, 'mousemove', move);
-        unbindEvent(that.widget.overlay, 'mouseup', stop);
-        unbindEvent(that.widget.document, 'mouseleave', stop);
+        bindEvent(that.widget.selection, 'mousemove', move);
+        bindEvent(that.widget.selection, 'mouseup', stop);
+        bindEvent(that.widget.overlay, 'mousemove', move);
+        bindEvent(that.widget.overlay, 'mouseup', stop);
+        bindEvent(that.widget.document, 'mouseleave', stop);
         stopPropagation(event);
     };
 
@@ -331,11 +329,11 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
         var context_top = initSelectionTop(event);
         var context_right = initSelectionRight(event);
 
-        unbindEvent(that.widget.selection, 'mousemove', move);
-        unbindEvent(that.widget.selection, 'mouseup', stop);
-        unbindEvent(that.widget.overlay, 'mousemove', move);
-        unbindEvent(that.widget.overlay, 'mouseup', stop);
-        unbindEvent(that.widget.document, 'mouseleave', stop);
+        bindEvent(that.widget.selection, 'mousemove', move);
+        bindEvent(that.widget.selection, 'mouseup', stop);
+        bindEvent(that.widget.overlay, 'mousemove', move);
+        bindEvent(that.widget.overlay, 'mouseup', stop);
+        bindEvent(that.widget.document, 'mouseleave', stop);
         stopPropagation(event);
     };
 
@@ -361,11 +359,11 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
 
         var context_bottom = initSelectionBottom(event);
 
-        unbindEvent(that.widget.selection, 'mousemove', move);
-        unbindEvent(that.widget.selection, 'mouseup', stop);
-        unbindEvent(that.widget.overlay, 'mousemove', move);
-        unbindEvent(that.widget.overlay, 'mouseup', stop);
-        unbindEvent(that.widget.document, 'mouseleave', stop);
+        bindEvent(that.widget.selection, 'mousemove', move);
+        bindEvent(that.widget.selection, 'mouseup', stop);
+        bindEvent(that.widget.overlay, 'mousemove', move);
+        bindEvent(that.widget.overlay, 'mouseup', stop);
+        bindEvent(that.widget.document, 'mouseleave', stop);
         stopPropagation(event);
     };
 
@@ -393,11 +391,11 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
         var context_bottom = initSelectionBottom(event);
         var context_left = initSelectionLeft(event);
 
-        unbindEvent(that.widget.selection, 'mousemove', move);
-        unbindEvent(that.widget.selection, 'mouseup', stop);
-        unbindEvent(that.widget.overlay, 'mousemove', move);
-        unbindEvent(that.widget.overlay, 'mouseup', stop);
-        unbindEvent(that.widget.document, 'mouseleave', stop);
+        bindEvent(that.widget.selection, 'mousemove', move);
+        bindEvent(that.widget.selection, 'mouseup', stop);
+        bindEvent(that.widget.overlay, 'mousemove', move);
+        bindEvent(that.widget.overlay, 'mouseup', stop);
+        bindEvent(that.widget.document, 'mouseleave', stop);
         stopPropagation(event);
     };
 
@@ -425,11 +423,11 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
         var context_bottom = initSelectionBottom(event);
         var context_right = initSelectionRight(event);
 
-        unbindEvent(that.widget.selection, 'mousemove', move);
-        unbindEvent(that.widget.selection, 'mouseup', stop);
-        unbindEvent(that.widget.overlay, 'mousemove', move);
-        unbindEvent(that.widget.overlay, 'mouseup', stop);
-        unbindEvent(that.widget.document, 'mouseleave', stop);
+        bindEvent(that.widget.selection, 'mousemove', move);
+        bindEvent(that.widget.selection, 'mouseup', stop);
+        bindEvent(that.widget.overlay, 'mousemove', move);
+        bindEvent(that.widget.overlay, 'mouseup', stop);
+        bindEvent(that.widget.document, 'mouseleave', stop);
         stopPropagation(event);
     };
 
@@ -455,11 +453,11 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
 
         var context_left = initSelectionLeft(event);
 
-        unbindEvent(that.widget.selection, 'mousemove', move);
-        unbindEvent(that.widget.selection, 'mouseup', stop);
-        unbindEvent(that.widget.overlay, 'mousemove', move);
-        unbindEvent(that.widget.overlay, 'mouseup', stop);
-        unbindEvent(that.widget.document, 'mouseleave', stop);
+        bindEvent(that.widget.selection, 'mousemove', move);
+        bindEvent(that.widget.selection, 'mouseup', stop);
+        bindEvent(that.widget.overlay, 'mousemove', move);
+        bindEvent(that.widget.overlay, 'mouseup', stop);
+        bindEvent(that.widget.document, 'mouseleave', stop);
         stopPropagation(event);
     };
 
@@ -553,16 +551,15 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
     };
 
     var actionKeyDown = function (event) {
-        if (event.keyCode == 27) actionClose();
-        else if (event.keyCode == 13) actionSave();
+        if (event.keyCode == 27) actionClose(event);
+        else if (event.keyCode == 13) actionSave(event);
         else return;
 
         unbindEvent(that.widget.window, 'keydown', actionKeyDown);
-        this.stopPropagation(event);
     };
 
     var actionClick = function (event) {
-        this.stopPropagation(event);
+        stopPropagation(event);
     };
 
     var actionSave = function (event) {
