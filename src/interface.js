@@ -126,8 +126,9 @@ applitools.interface = {
             builder.record.stop();
         });
 
-        jQuery('#edit-clearresults').click(function() {
-            applitools.applitoolsResultsPanel.hide();
+        jQuery('#edit-clearresults').on('click', function() {
+            applitools.interface.applitoolsResultsPanel.hide();
+            applitools.interface.applitoolsRecordPanel.show(true);
         });
     },
 
@@ -248,6 +249,7 @@ applitools.interface = {
             builder.stepdisplay.update();
         }
 
+        applitools.interface.applitoolsRecordPanel.hide();
         applitools.interface.applitoolsResultsPanel.show(data.isPassed, data.isSaved, data.isAborted, data.appUrls.session);
 
         function collectStepsIds() {
