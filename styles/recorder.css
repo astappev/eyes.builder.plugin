@@ -59,7 +59,7 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
 .applitools-record-panel label {
     color: #4f4f4f;
     font-weight: bold;
-    padding-right: 10px;
+    width: 6rem;
     line-height: 3rem;
     float: left;
 }
@@ -68,7 +68,7 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
 .applitools-record-panel .input-wrapper {
     overflow: hidden;
     display: block;
-    padding: 0 4px 0 10px
+    padding-left: 1rem;
 }
 
 .applitools-settings-dialog input,

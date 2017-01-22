@@ -6,6 +6,7 @@ m.__applitools_settings = "Applitools settings";
 m.__applitools_settings_recording = "Recording settings";
 m.__applitools_apikey = "API Key:";
 m.__applitools_lookup_api_key = "How to get API key?";
+m.__applitools_server_url = "Server URL:";
 m.__applitools_close = "Close";
 m.__applitools_app_name = "App Name:";
 m.__applitools_test_name = "Test Name:";

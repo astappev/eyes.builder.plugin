@@ -24,6 +24,12 @@ applitools.interface = {
             newNode('span', {'class': 'close'}),
             newNode('hr'),
             newNode('p', {},
+                newNode('label',  {'for' : 'applitools_server_url'}, _t('__applitools_server_url')),
+                newNode('span', {'class': 'input-wrapper'},
+                    newNode('input', {id: 'applitools_server_url', type: 'text'})
+                )
+            ),
+            newNode('p', {},
                 newNode('label',  {'for' : 'applitools_apikey'}, _t('__applitools_apikey')),
                 newNode('span', {'class': 'input-wrapper'},
                     newNode('input', {id: 'applitools_apikey', type: 'text'})
@@ -84,6 +90,11 @@ applitools.interface = {
             applitools.setApiKey(newValue);
         });
 
+        jQuery(document).on('change', 'input#applitools_server_url', function () {
+            var newValue = jQuery(this).val();
+            applitools.setServerUrl(newValue);
+        });
+
         jQuery(document).on('click', '#applitools-validate-window', function () {
             applitools.validateWindow();
         });
@@ -125,6 +136,9 @@ applitools.interface = {
         show: function() {
             this.element.find('input#applitools_apikey')
                 .val(applitools.getApiKey() || '');
+            this.element.find('input#applitools_server_url')
+                .val(applitools.getServerUrl() || '')
+                .attr("placeholder", applitools.getDefaultServerUrl());
 
             this.element.show();
         },

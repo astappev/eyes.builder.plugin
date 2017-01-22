@@ -1,5 +1,6 @@
 var applitools = {
     apiKey: null,
+    serverUrl: null,
     appName: null,
     testName: null,
     userAgent: null,
@@ -83,18 +84,41 @@ var applitools = {
     },
 
     setApiKey: function(newApiKey) {
-        if (typeof(newApiKey) === 'string' && newApiKey.length > 0) {
-            var prefName = "extensions.seleniumbuilder.plugins.applitools.apiKey";
+        var prefName = "extensions.seleniumbuilder.plugins.applitools.apiKey";
+        try {
+            this.apiKey = newApiKey;
+            bridge.prefManager.setCharPref(prefName, this.apiKey);
+            return true;
+        } catch (e) {
+            console.error("Can't save apiKey", e);
+        }
+    },
+
+    getDefaultServerUrl: function () {
+        return "https://eyesapi.applitools.com";
+    },
+
+    getServerUrl: function() {
+        if (!this.serverUrl) {
+            var prefName = "extensions.seleniumbuilder.plugins.applitools.serverUrl", defaultVal = null;
             try {
-                this.apiKey = newApiKey;
-                bridge.prefManager.setCharPref(prefName, this.apiKey);
-                return true;
+                this.serverUrl = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : defaultVal;
             } catch (e) {
-                console.error("Can't save apiKey", e);
+                this.serverUrl = defaultVal;
             }
         }
 
-        return false;
+        return this.serverUrl;
+    },
+
+    setServerUrl: function(newServerUrl) {
+        var prefName = "extensions.seleniumbuilder.plugins.applitools.serverUrl";
+        try {
+            this.serverUrl = newServerUrl;
+            bridge.prefManager.setCharPref(prefName, this.serverUrl);
+        } catch (e) {
+            console.error("Can't save serverUrl", e);
+        }
     },
 
     getDefaultAppName: function () {
@@ -249,7 +273,7 @@ var applitools = {
             }
 
             if (!that.eyes) {
-                that.eyes = new window.EyesImages.Eyes();
+                that.eyes = new window.EyesImages.Eyes(that.getServerUrl());
                 that.eyes.setApiKey(apiKey);
                 that.eyes.setInferredEnvironment("useragent:" + that.getUserAgent(true));
             }
