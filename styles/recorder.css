@@ -7,6 +7,14 @@
     padding-bottom: 1rem;
 }
 
+a[name="eyes.checkWindow"] + span > span {
+    display: block !important;
+}
+
+a[name="eyes.checkWindow"] + span > span .b-param-type {
+    display: initial !important;
+}
+
 .b-step-note {
     color: #C8720D;
     background: none;
