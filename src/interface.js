@@ -166,7 +166,8 @@ applitools.interface = {
             var appName = applitools.getAppName() || applitools.getDefaultAppName();
             var testName = applitools.getTestName() || applitools.getDefaultTestName();
             this.element.find('.test-title').text(appName + ' - ' + testName);
-            this.element.find('a').text(batchUrl).attr('href', batchUrl);
+            var urlText = batchUrl.substr(0, batchUrl.indexOf('?'));
+            this.element.find('a').text(urlText).attr('href', batchUrl);
 
             if (isSaved) {
                 this.element.find('.test-status').text("New test ended");
@@ -231,7 +232,7 @@ applitools.interface = {
             builder.stepdisplay.update();
         }
 
-        applitools.interface.applitoolsResultsPanel.show(data.isPassed, data.isSaved, data.appUrls.batch);
+        applitools.interface.applitoolsResultsPanel.show(data.isPassed, data.isSaved, data.appUrls.session);
 
         function collectStepsIds() {
             var recordedSteps = jQuery('#steps').find('.b-step').get();
