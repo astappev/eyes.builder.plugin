@@ -44,9 +44,9 @@ applitools.interface = {
         var recordNode = newNode('div', {'id': 'applitools-record-panel', 'class': 'panel applitools-panel applitools-record-panel', 'style': 'display: none;'},
             newNode('p', {'class': 'logo-wrapper'}, newNode('span', {'class': 'applitools-logo'})),
             newNode('div', {'class': 'control-buttons-wrapper'},
-                newNode('a', {'href': '#', 'id': 'applitools-validate-window', 'class': 'button applitools-button'}, _t('__applitools_validate_window')),
-                newNode('a', {'href': '#', 'id': 'applitools-validate-element', 'class': 'button applitools-button'}, _t('__applitools_validate_element')),
-                newNode('a', {'href': '#', 'id': 'applitools-validate-region', 'class': 'button applitools-button'}, _t('__applitools_validate_region'))
+                newNode('a', {'href': '#', 'id': 'applitools-validate-window', 'class': 'applitools-button'}, _t('__applitools_validate_window')),
+                newNode('a', {'href': '#', 'id': 'applitools-validate-element', 'class': 'applitools-button'}, _t('__applitools_validate_element')),
+                newNode('a', {'href': '#', 'id': 'applitools-validate-region', 'class': 'applitools-button'}, _t('__applitools_validate_region'))
             ),
             newNode('div',
                 newNode('p',
@@ -69,8 +69,8 @@ applitools.interface = {
             newNode('p', {'class': 'test-status-wrapper'},
                 newNode('span', {'class': 'test-status'}), ': ', newNode('span', {'class': 'test-title'})
             ),
-            newNode('p', {'class': 'wrap-ellipsis'},
-                _t('__applitools_see_details_at'), ' ', newNode('a', {'href': '#', 'target': '_blank'})
+            newNode('p',
+                newNode('a', {'href': '#', 'target': '_blank', 'class': 'applitools-button'}, _t('__applitools_see_details_here'))
             )
         );
 
@@ -180,8 +180,7 @@ applitools.interface = {
             var appName = applitools.getAppName(true);
             var testName = applitools.getTestName(true);
             this.element.find('.test-title').text(appName + ' - ' + testName);
-            var urlText = batchUrl.substr(0, batchUrl.indexOf('?'));
-            this.element.find('a').text(urlText).attr('href', batchUrl);
+            this.element.find('a').attr('href', batchUrl);
 
             if (isSaved) {
                 this.element.find('.test-status').text(_t('__applitools_test_new'));
@@ -204,7 +203,7 @@ applitools.interface = {
 
             this.element.find('.test-status').empty();
             this.element.find('.test-title').empty();
-            this.element.find('a').empty().attr('href', '#');
+            this.element.find('a').attr('href', '#');
             this.element.removeClass("passed new failed aborted");
         }
     },

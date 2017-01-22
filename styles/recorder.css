@@ -124,20 +124,37 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
     width: 162px;
 }
 
-a.applitools-button,
-a.applitools-button:hover,
-a.applitools-button:active {
+a.applitools-button {
     font: 400 1.3rem/1.6rem 'Lato', sans-serif;
-    color: #000 !important;
+    color: #000;
     background: #f8f8f8;
-    padding: 0.4rem 1.17rem;
+    padding: 0.4rem 1.7rem;
     border-radius: 3px;
     border: none;
     box-shadow: none;
+
+    text-decoration: none;
+    display: inline-block;
+    margin: 0 6px 6px 0;
+    min-width: 5rem;
+    min-height: 1rem;
+    text-align: center;
+}
+
+a.applitools-button:last-child {
+    margin-right: 0;
 }
 
 a.applitools-button:hover {
-    color: #00c5b4 !important;
+    color: #00c5b4;
+}
+
+.applitools-results-panel {
+    margin-bottom: 0.75rem;
+}
+
+.applitools-results-panel > p:last-child {
+    margin-bottom: 0;
 }
 
 .applitools-results-panel .test-status-wrapper {
@@ -156,14 +173,4 @@ a.applitools-button:hover {
 
 .applitools-results-panel.aborted .test-status {
     color: #C8720D;
-}
-
-.applitools-results-panel a {
-    color: #027971;
-}
-
-p.wrap-ellipsis {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
 }
