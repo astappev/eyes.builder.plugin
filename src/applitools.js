@@ -224,7 +224,6 @@ var applitools = {
                     }, 1);
 
                     bridge.focusRecorderWindow();
-
                     var title = applitools.getRecWinTitle();
                     var checkRegionStep = new builder.Step(
                         builder.selenium2.stepTypes["eyes.checkRegion"],
@@ -337,9 +336,24 @@ var applitools = {
     },
 
     forceCloseSession: function () {
-        if (this.eyes) {
-            this.eyes.abortIfNotClosed();
-            this.eyes = null;
-        }
+        var that = this;
+        return that.promiseFactory.makePromise(function (resolve, reject) {
+            if (!that.eyes) {
+                resolve();
+                return;
+            }
+
+            console.log("Eyes: aborting session...");
+            return that.eyes.abortIfNotClosed().then(function (data) {
+                console.log("Eyes: session aborted.");
+                applitools.interface.processTestResult(data);
+                resolve(data);
+            }, function (err) {
+                console.error("Eyes: can't abort session:", err);
+                reject(err);
+            }).then(function () {
+                that.eyes = null;
+            });
+        });
     }
 };

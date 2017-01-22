@@ -162,7 +162,7 @@ applitools.interface = {
 
     applitoolsResultsPanel: {
         element: null,
-        show: function (isPassed, isSaved, batchUrl) {
+        show: function (isPassed, isSaved, isAborted, batchUrl) {
             var appName = applitools.getAppName(true);
             var testName = applitools.getTestName(true);
             this.element.find('.test-title').text(appName + ' - ' + testName);
@@ -170,13 +170,16 @@ applitools.interface = {
             this.element.find('a').text(urlText).attr('href', batchUrl);
 
             if (isSaved) {
-                this.element.find('.test-status').text("New test ended");
+                this.element.find('.test-status').text(_t('__applitools_test_new'));
                 this.element.addClass("passed new");
             } else if (isPassed) {
-                this.element.find('.test-status').text("Test passed");
+                this.element.find('.test-status').text(_t('__applitools_test_passed'));
                 this.element.addClass("passed");
+            } else if (isAborted) {
+                this.element.find('.test-status').text(_t('__applitools_test_aborted'));
+                this.element.addClass("aborted");
             } else {
-                this.element.find('.test-status').text("Test failed");
+                this.element.find('.test-status').text(_t('__applitools_test_failed'));
                 this.element.addClass("failed");
             }
 
@@ -188,7 +191,7 @@ applitools.interface = {
             this.element.find('.test-status').empty();
             this.element.find('.test-title').empty();
             this.element.find('a').empty().attr('href', '#');
-            this.element.removeClass("passed new failed");
+            this.element.removeClass("passed new failed aborted");
         }
     },
 
@@ -232,7 +235,7 @@ applitools.interface = {
             builder.stepdisplay.update();
         }
 
-        applitools.interface.applitoolsResultsPanel.show(data.isPassed, data.isSaved, data.appUrls.session);
+        applitools.interface.applitoolsResultsPanel.show(data.isPassed, data.isSaved, data.isAborted, data.appUrls.session);
 
         function collectStepsIds() {
             var recordedSteps = jQuery('#steps').find('.b-step').get();

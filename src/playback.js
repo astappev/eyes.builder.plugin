@@ -31,7 +31,6 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
         return screenshot.asObject();
     }).then(function (imageObj) {
         playbackUtils.updateProgressStatus(r, 60);
-        bridge.focusRecorderWindow();
         return applitools.checkImage(imageObj.imageBuffer, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
@@ -58,7 +57,6 @@ builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
         return screenshot.asObject();
     }).then(function (imageObj) {
         playbackUtils.updateProgressStatus(r, 60);
-        bridge.focusRecorderWindow();
         return applitools.checkRegion(elRegion, imageObj.imageBuffer, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
@@ -85,7 +83,6 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
         return screenshot.asObject();
     }).then(function (imageObj) {
         playbackUtils.updateProgressStatus(r, 60);
-        bridge.focusRecorderWindow();
         return applitools.checkRegion(region, imageObj.imageBuffer, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});

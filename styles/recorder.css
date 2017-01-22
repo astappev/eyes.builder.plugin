@@ -154,6 +154,10 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
     color: #b22415;
 }
 
+.applitools-results-panel.aborted .test-status {
+    color: #C8720D;
+}
+
 .applitools-results-panel a {
     color: #027971;
 }
