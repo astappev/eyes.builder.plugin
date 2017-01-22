@@ -90,6 +90,7 @@ builder.views.script.onStartRCPlayback = (function() {
     var cached_function = builder.views.script.onStartRCPlayback;
     return function() {
         console.log("builder.views.script.onStartRCPlayback()");
+        applitools.setUserAgent(null);
         applitools.interface.applitoolsRecordPanel.hide();
         applitools.interface.applitoolsResultsPanel.hide();
         var result = cached_function.apply(this, arguments);
@@ -97,13 +98,13 @@ builder.views.script.onStartRCPlayback = (function() {
     };
 })();
 
-// Override method called on click save script
+// Override methods called on click save script
 builder.dialogs.exportscript.save = (function() {
     var cached_function = builder.dialogs.exportscript.save;
     return function() {
         console.log("builder.dialogs.exportscript.save()");
-        applitools.saveVariableToCurrentScript('appName', applitools.getAppName() || applitools.getDefaultAppName());
-        applitools.saveVariableToCurrentScript('testName', applitools.getTestName() || applitools.getDefaultTestName());
+        applitools.saveVariableToCurrentScript('appName', applitools.getAppName(true));
+        applitools.saveVariableToCurrentScript('testName', applitools.getTestName(true));
         var result = cached_function.apply(this, arguments);
         return result;
     };
@@ -113,8 +114,8 @@ builder.dialogs.exportscript.saveAs = (function() {
     var cached_function = builder.dialogs.exportscript.saveAs;
     return function() {
         console.log("builder.dialogs.exportscript.saveAs()");
-        applitools.saveVariableToCurrentScript('appName', applitools.getAppName() || applitools.getDefaultAppName());
-        applitools.saveVariableToCurrentScript('testName', applitools.getTestName() || applitools.getDefaultTestName());
+        applitools.saveVariableToCurrentScript('appName', applitools.getAppName(true));
+        applitools.saveVariableToCurrentScript('testName', applitools.getTestName(true));
         var result = cached_function.apply(this, arguments);
         return result;
     };

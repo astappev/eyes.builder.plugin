@@ -3,14 +3,14 @@ builder.selenium2.io.addLangFormatter({
 
     start: "var Eyes = require('eyes.selenium').Eyes;\n" +
     "var eyes = new Eyes();\n" +
-    "eyes.setApiKey('" + (applitools.getApiKey() || "<YOUR_API_KEY>") + "');\n" +
+    "eyes.setApiKey('" + applitools.getApiKey(true) + "');\n" +
     "\n" +
     "describe('Selenium Test Case', function() {\n" +
     "\tit('should execute test case without errors', function() {\n" +
     "\t\tvar text, value, bool, source, url, title;\n" +
     "\t\tvar TestVars = {};\n" +
     "\n" +
-    "\t\teyes.open(browser, '" + applitools.getAppName() + "', '" + applitools.getTestName() + "');\n",
+    "\t\teyes.open(browser, '" + applitools.getAppName(true) + "', '" + applitools.getTestName(true) + "');\n",
 
     end: "\t\teyes.close();\n" +
     "\t});\n" +

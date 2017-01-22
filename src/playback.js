@@ -1,3 +1,5 @@
+var JS_GET_USER_AGENT = "return navigator.userAgent";
+
 var JS_GET_CURRENT_SCROLL_POSITION =
     "var doc = document.documentElement; " +
     "var x = window.scrollX || ((window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0)); " +
@@ -21,7 +23,10 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
     var title = builder.selenium2.rcPlayback.param(r, "title");
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.getScreenshot(r).then(function (screenshot) {
+    playbackUtils.updateUserAgent(r).then(function () {
+        playbackUtils.updateProgressStatus(r, 5);
+        return playbackUtils.getScreenshot(r);
+    }).then(function (screenshot) {
         playbackUtils.updateProgressStatus(r, 55);
         return screenshot.asObject();
     }).then(function (imageObj) {
@@ -41,7 +46,10 @@ builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
     var elRegion;
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.getRegionByElement(r, locator).then(function (region) {
+    playbackUtils.updateUserAgent(r).then(function () {
+        playbackUtils.updateProgressStatus(r, 5);
+        return playbackUtils.getRegionByElement(r, locator);
+    }).then(function (region) {
         elRegion = region;
         playbackUtils.updateProgressStatus(r, 10);
         return playbackUtils.getScreenshot(r);
@@ -69,7 +77,10 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
     };
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.getScreenshot(r).then(function (screenshot) {
+    playbackUtils.updateUserAgent(r).then(function () {
+        playbackUtils.updateProgressStatus(r, 5);
+        return playbackUtils.getScreenshot(r);
+    }).then(function (screenshot) {
         playbackUtils.updateProgressStatus(r, 55);
         return screenshot.asObject();
     }).then(function (imageObj) {
@@ -86,6 +97,23 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
 var playbackUtils = {
     updateProgressStatus: function (r, percentage) {
         r.stepStateCallback(r, r.script, r.currentStep, r.currentStepIndex, builder.stepdisplay.state.NO_CHANGE, null, null, percentage);
+    },
+
+    updateUserAgent: function (r) {
+        var that = this;
+        return applitools.promiseFactory.makePromise(function (resolve) {
+            if (applitools.getUserAgent()) {
+                resolve();
+                return;
+            }
+
+            that.getUserAgent(r).then(function (newUserAgent) {
+                applitools.setUserAgent(newUserAgent);
+                resolve();
+            }, function () {
+                reject("Can not receive userAgent");
+            });
+        });
     },
 
     getViewportSize: function (r) {
@@ -121,6 +149,10 @@ var playbackUtils = {
 
     setScrollPosition: function (r, point) {
         return this.executeScript(r, 'window.scrollTo(' + parseInt(point.x, 10) + ', ' + parseInt(point.y, 10) + ');');
+    },
+
+    getUserAgent: function (r) {
+        return this.executeScript(r, JS_GET_USER_AGENT);
     },
 
     executeScript: function (r, script) {

@@ -20,9 +20,9 @@ builder.selenium2.io.addLangFormatter({
     "\t\t{initDriver}\n" +
     "\t\tdriver.manage().timeouts().implicitlyWait({timeoutSeconds}, TimeUnit.SECONDS);\n" +
     "\t\tEyes eyes = new Eyes();\n" +
-    "\t\teyes.setApiKey('" + (applitools.getApiKey() || "<YOUR_API_KEY>") + "');\n" +
+    "\t\teyes.setApiKey('" + applitools.getApiKey(true) + "');\n" +
     "\t\ttry {\n" +
-    "\t\t\tdriver = eyes.open(driver, '" + applitools.getAppName() + "', '" + applitools.getTestName() + "');\n\n",
+    "\t\t\tdriver = eyes.open(driver, '" + applitools.getAppName(true) + "', '" + applitools.getTestName(true) + "');\n\n",
     end: "\n" +
     "\t\t\teyes.close();\n" +
     "\t\t} finally {\n" +

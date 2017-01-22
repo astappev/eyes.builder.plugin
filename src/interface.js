@@ -163,8 +163,8 @@ applitools.interface = {
     applitoolsResultsPanel: {
         element: null,
         show: function (isPassed, isSaved, batchUrl) {
-            var appName = applitools.getAppName() || applitools.getDefaultAppName();
-            var testName = applitools.getTestName() || applitools.getDefaultTestName();
+            var appName = applitools.getAppName(true);
+            var testName = applitools.getTestName(true);
             this.element.find('.test-title').text(appName + ' - ' + testName);
             var urlText = batchUrl.substr(0, batchUrl.indexOf('?'));
             this.element.find('a').text(urlText).attr('href', batchUrl);

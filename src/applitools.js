@@ -2,7 +2,7 @@ var applitools = {
     apiKey: null,
     appName: null,
     testName: null,
-    isAskForMethodsTitle: null,
+    userAgent: null,
 
     eyes: null,
     promiseFactory: null,
@@ -65,7 +65,7 @@ var applitools = {
     shutdown: function () {
     },
 
-    getApiKey: function() {
+    getApiKey: function(useDefaultIfNotSpecified) {
         if (!this.apiKey) {
             var prefName = "extensions.seleniumbuilder.plugins.applitools.apiKey", defaultVal = null;
             try {
@@ -73,6 +73,10 @@ var applitools = {
             } catch (e) {
                 this.apiKey = defaultVal;
             }
+        }
+
+        if (!this.apiKey && useDefaultIfNotSpecified) {
+            return "<YOUR_API_KEY>";
         }
 
         return this.apiKey;
@@ -97,7 +101,11 @@ var applitools = {
         return bridge.getRecordingWindow().location.hostname;
     },
 
-    getAppName: function () {
+    getAppName: function (useDefaultIfNotSpecified) {
+        if (!this.appName && useDefaultIfNotSpecified) {
+            return this.getDefaultAppName();
+        }
+
         return this.appName;
     },
 
@@ -110,12 +118,28 @@ var applitools = {
         return '';
     },
 
-    getTestName: function () {
+    getTestName: function (useDefaultIfNotSpecified) {
+        if (!this.testName && useDefaultIfNotSpecified) {
+            return this.getDefaultTestName();
+        }
+
         return this.testName;
     },
 
     setTestName: function (newTestName) {
         this.testName = newTestName;
+    },
+
+    getUserAgent: function (useDefaultIfNotSpecified) {
+        if (!this.userAgent && useDefaultIfNotSpecified) {
+            return window.navigator.userAgent;
+        }
+
+        return this.userAgent;
+    },
+
+    setUserAgent: function (newUserAgent) {
+        this.userAgent = newUserAgent;
     },
 
     saveVariableToCurrentScript: function (varName, varValue) {
@@ -228,15 +252,14 @@ var applitools = {
             if (!that.eyes) {
                 that.eyes = new window.EyesImages.Eyes();
                 that.eyes.setApiKey(apiKey);
-                that.eyes.setInferredEnvironment("useragent:" + window.navigator.userAgent);
-                that.eyes.setHostingApp("Selenium builder");
+                that.eyes.setInferredEnvironment("useragent:" + that.getUserAgent(true));
             }
 
             if (!that.eyes.isOpen()) {
-                var appName = that.getAppName() || that.getDefaultAppName();
-                var testName = that.getTestName() || that.getDefaultTestName();
-                console.log("Opening new session...", appName, testName);
+                var appName = that.getAppName(true);
+                var testName = that.getTestName(true);
                 var viewportSize = that.getRecWinViewportSize();
+                console.log("Opening new session...", appName, testName);
                 that.eyes.open(appName, testName, viewportSize).then(function () {
                     console.log("Eyes: new session opened.");
                     resolve();
