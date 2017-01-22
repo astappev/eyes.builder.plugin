@@ -80,6 +80,10 @@ builder.dialogs.rc.show = (function() {
             alert(_t('__applitools_test_name_required'));
             return;
         }
+        if (!applitools.getApiKey()) {
+            alert(_t('__applitools_apikey_required'));
+            return;
+        }
         var result = cached_function.apply(this, arguments);
         return result;
     };
