@@ -124,9 +124,9 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
     width: 162px;
 }
 
-.applitools-record-panel .button,
-.applitools-record-panel .button:hover,
-.applitools-record-panel .button:active {
+a.applitools-button,
+a.applitools-button:hover,
+a.applitools-button:active {
     font: 400 1.3rem/1.6rem 'Lato', sans-serif;
     color: #000 !important;
     background: #f8f8f8;
@@ -136,8 +136,8 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
     box-shadow: none;
 }
 
-.applitools-record-panel .button:hover {
-    background: #efefef;
+a.applitools-button:hover {
+    color: #00c5b4 !important;
 }
 
 .applitools-results-panel .test-status-wrapper {

@@ -38,9 +38,9 @@ applitools.interface = {
         var recordNode = newNode('div', {'id': 'applitools-record-panel', 'class': 'panel applitools-panel applitools-record-panel', 'style': 'display: none;'},
             newNode('p', {'class': 'logo-wrapper'}, newNode('span', {'class': 'applitools-logo'})),
             newNode('div', {'class': 'control-buttons-wrapper'},
-                newNode('a', {'href': '#', 'id': 'applitools-validate-window', 'class': 'button'}, _t('__applitools_validate_window')),
-                newNode('a', {'href': '#', 'id': 'applitools-validate-element', 'class': 'button'}, _t('__applitools_validate_element')),
-                newNode('a', {'href': '#', 'id': 'applitools-validate-region', 'class': 'button'}, _t('__applitools_validate_region'))
+                newNode('a', {'href': '#', 'id': 'applitools-validate-window', 'class': 'button applitools-button'}, _t('__applitools_validate_window')),
+                newNode('a', {'href': '#', 'id': 'applitools-validate-element', 'class': 'button applitools-button'}, _t('__applitools_validate_element')),
+                newNode('a', {'href': '#', 'id': 'applitools-validate-region', 'class': 'button applitools-button'}, _t('__applitools_validate_region'))
             ),
             newNode('div',
                 newNode('p',
