@@ -1,159 +1,193 @@
 applitools.interface = {
-    settingsDialog: null,
-
     init: function () {
         builder.gui.menu.addItem('file', _t('__applitools_settings_menu'), 'file-applitools-settings', function() {
-            applitools.interface.settingsPanel.show();
+            applitools.interface.settingsDialog.show();
         });
 
         // load styles
-        var path = builder.plugins.getResourcePath('applitools', 'styles.css');
+        var font = document.createElement('link');
+        font.setAttribute('href', 'https://fonts.googleapis.com/css?family=Lato:400,700');
+        font.setAttribute('rel', 'stylesheet');
+
+        var path = builder.plugins.getResourcePath('applitools', 'styles/recorder.css');
         var link = document.createElement('link');
         link.setAttribute('href', path + "?" + Math.random());
         link.setAttribute('rel', 'stylesheet');
-        document.getElementsByTagName('head')[0].appendChild(link);
-
-        // add panels
-        var $panels = jQuery('#panels');
-        $panels.append("<div id='applitools-panel' class='panel'></div>");
-        this.applitoolsPanel.element = jQuery("#applitools-panel");
-
-        var eyesForm =
-            newNode('div', {'id': 'applitools-record-form-div'},
-                newNode('table', {style: 'border: none;', id: 'rc-options-table'},
-                    newNode('tr',
-                        newNode('td', _t('__applitools_app_name') + " "),
-                        newNode('td', newNode('input', {id: 'eyes-app-name', type: 'text', value: applitools.getAppName()}))
-                    ),
-                    newNode('tr',
-                        newNode('td', _t('__applitools_test_name') + " "),
-                        newNode('td', newNode('input', {id: 'eyes-test-name', type: 'text', value: applitools.getTestName()}))
-                    )
-                )
-            );
-
-        var eyesButtons =
-            newNode('div', {'class': 'applitools-record-buttons-div'},
-                newNode('a', {'href': '#', 'id': 'applitools-record-window', 'class': 'button button-applitools'}, _t('__applitools_record_window')),
-                newNode('a', {'href': '#', 'id': 'applitools-record-element', 'class': 'button button-applitools'}, _t('__applitools_record_element')),
-                newNode('a', {'href': '#', 'id': 'applitools-record-region', 'class': 'button button-applitools'}, _t('__applitools_record_region'))
-            );
-
-        var eyesCheckbox =
-            newNode('div', {'class': 'ask-for-methods-title-div'},
-                newNode('input', {'id': 'ask-for-methods-title', 'type': 'checkbox'}),
-                newNode('label', {'id': 'ask-for-methods-title-label', 'for': 'ask-for-methods-title'}, _t('__applitools_is_ask_for_methods_title'))
-            );
-
-        $panels.find('#record-panel').prepend(eyesButtons).prepend(eyesForm).append(eyesCheckbox);
+        document.getElementsByTagName('head')[0].appendChild(font).appendChild(link);
 
         // settings panel
-        this.settingsDialog =
-            newNode('div', {'class': 'dialog'},
-                newNode('h2', _t('__applitools_settings')),
-                newNode('table', {style: 'border: none;', id: 'rc-options-table'},
-                    newNode('tr',
-                        newNode('td', _t('__applitools_apikey') + " "),
-                        newNode('td', newNode('input', {
-                            id: 'applitools_apikey',
-                            type: 'text'
-                        })),
-                        newNode('td',
-                            newNode('span', ' ('),
-                            newNode('a', {'href': 'https://eyes.applitools.com/app/tutorial', 'target': '_blank'}, _t('__applitools_lookup_api_key')),
-                            newNode('span', ') ')
-                        )
+        var settingsNode = newNode('div', {'class': 'dialog applitools-settings-dialog', 'style': 'display: none;'},
+            newNode('h2', _t('__applitools_settings')),
+            newNode('a', {'href': '#', 'id': 'applitools-settings-close', 'class': 'applitools-dialog-close'},
+                newNode('span', _t('__applitools_close'))
+            ),
+            newNode('span', {'class': 'close'}),
+            newNode('hr'),
+            newNode('p', {},
+                newNode('label',  {'for' : 'applitools_apikey'}, _t('__applitools_apikey')),
+                newNode('span', {'class': 'input-wrapper'},
+                    newNode('input', {id: 'applitools_apikey', type: 'text'})
+                )
+            ),
+            newNode('p', {},
+                newNode('a', {'href': 'https://eyes.applitools.com/app/tutorial', 'target': '_blank'}, _t('__applitools_lookup_api_key'))
+            )
+        );
+
+        // add panels
+        var recordNode = newNode('div', {'id': 'applitools-record-panel', 'class': 'panel applitools-panel applitools-record-panel', 'style': 'display: none;'},
+            newNode('p', {'class': 'logo-wrapper'}, newNode('span', {'class': 'applitools-logo'})),
+            newNode('div', {'class': 'control-buttons-wrapper'},
+                newNode('a', {'href': '#', 'id': 'applitools-validate-window', 'class': 'button'}, _t('__applitools_validate_window')),
+                newNode('a', {'href': '#', 'id': 'applitools-validate-element', 'class': 'button'}, _t('__applitools_validate_element')),
+                newNode('a', {'href': '#', 'id': 'applitools-validate-region', 'class': 'button'}, _t('__applitools_validate_region'))
+            ),
+            newNode('div',
+                newNode('p',
+                    newNode('label',  {'for' : 'applitools_app_name'}, _t('__applitools_app_name')),
+                    newNode('span', {'class': 'input-wrapper'},
+                        newNode('input', {id: 'applitools_app_name', type: 'text'})
                     )
                 ),
-                newNode('div', {style: 'margin-top:20px;'},
-                    newNode('a', {'href': '#', 'class': 'button', 'id': 'applitools-ok',
-                        'click': function() {
-                            var apiKey = jQuery('#applitools_apikey').val().trim();
-                            if (applitools.setApiKey(apiKey)) {
-                                applitools.interface.settingsPanel.hide();
-                            } else {
-                                alert(_t('__applitools_alert_empty_apikey_on_save'));
-                            }
-                        }
-                    }, _t('__applitools_ok')),
-                    newNode('a', {'href': '#', 'class': 'button', 'id': 'applitools-cancel',
-                        'click': function() {
-                            applitools.interface.settingsPanel.hide();
-                        }
-                    }, _t('__applitools_cancel'))
+                newNode('p',
+                    newNode('label',  {'for' : 'applitools_test_name'}, _t('__applitools_test_name')),
+                    newNode('span', {'class': 'input-wrapper'},
+                        newNode('input', {id: 'applitools_test_name', type: 'text'})
+                    )
                 )
-            );
+            )
+        );
 
-        jQuery(document).on('click', '#applitools-record-window', function () {
+        var resultsNode = newNode('div', {'id': 'applitools-results-panel', 'class': 'panel applitools-panel applitools-results-panel', 'style': 'display: none;'},
+            newNode('p', {'class': 'logo-wrapper'}, newNode('span', {'class': 'applitools-logo'})),
+            newNode('p', {'class': 'test-status-wrapper'},
+                newNode('span', {'class': 'test-status'}), ': ', newNode('span', {'class': 'test-title'})
+            ),
+            newNode('p', {'class': 'wrap-ellipsis'},
+                _t('__applitools_see_details_at'), ' ', newNode('a', {'href': '#', 'target': '_blank'})
+            )
+        );
+
+        jQuery("#dialog-attachment-point").append(settingsNode);
+        this.settingsDialog.element = $(settingsNode);
+
+        jQuery('#panels').append(recordNode).append(resultsNode);
+        this.applitoolsRecordPanel.element = $(recordNode);
+        this.applitoolsResultsPanel.element = $(resultsNode);
+
+        jQuery(document).on('click', '#applitools-settings-close', function () {
+            applitools.interface.settingsDialog.hide();
+        });
+
+        jQuery(document).on('change', 'input#applitools_apikey', function () {
+            var newValue = jQuery(this).val();
+            applitools.setApiKey(newValue);
+        });
+
+        jQuery(document).on('click', '#applitools-validate-window', function () {
             applitools.validateWindow();
         });
 
-        jQuery(document).on('click', '#applitools-record-element', function () {
+        jQuery(document).on('click', '#applitools-validate-element', function () {
             applitools.validateElement();
         });
 
-        jQuery(document).on('click', '#applitools-record-region', function () {
+        jQuery(document).on('click', '#applitools-validate-region', function () {
             applitools.validateRegion();
         });
 
-        jQuery('#edit-clearresults').click(function() {
-            jQuery('#applitools-panel').hide();
+        jQuery(document).on('change', 'input#applitools_app_name', function () {
+            var newValue = jQuery(this).val();
+            applitools.setAppName(newValue);
         });
 
-        jQuery('#eyes-app-name')
-            .val(applitools.getAppName())
-            .attr("placeholder", applitools.getDefaultAppName())
-            .on('change', function () {
-                var newValue = jQuery(this).val();
-                applitools.setAppName(newValue)
-            });
+        jQuery(document).on('change', 'input#applitools_test_name', function () {
+            var newValue = jQuery(this).val();
+            applitools.setTestName(newValue);
+        });
 
-        jQuery('#eyes-test-name')
-            .val(applitools.getTestName())
-            .attr("placeholder", applitools.getDefaultTestName())
-            .on('change', function () {
-                var newValue = jQuery(this).val();
-                applitools.setTestName(newValue)
-            });
+        jQuery('#record-stop-button').off('click').on('click', function (e) {
+            if (!applitools.getTestName()) {
+                alert(_t('__applitools_test_name_required'));
+                return;
+            }
 
-        jQuery('#ask-for-methods-title')
-            .prop('checked', applitools.getIsAskForMethodsTitle())
-            .on('change', function () {
-                applitools.setIsAskForMethodsTitle(this.checked);
-            });
+            builder.record.stop();
+        });
+
+        jQuery('#edit-clearresults').click(function() {
+            applitools.applitoolsResultsPanel.hide();
+        });
     },
 
-    controlButtons: {
+    settingsDialog: {
         element: null,
         show: function() {
-            jQuery('.button-applitools').show();
+            this.element.find('input#applitools_apikey')
+                .val(applitools.getApiKey() || '');
+
+            this.element.show();
         },
         hide: function() {
-            jQuery('.button-applitools').hide();
+            this.element.hide();
         }
     },
 
-    settingsPanel: {
+    applitoolsRecordPanel: {
         element: null,
-        show: function() {
-            if (this.element) { return; }
-            this.element = applitools.interface.settingsDialog;
-            builder.dialogs.show(this.element);
-            jQuery('#applitools_apikey').val(applitools.getApiKey() || '');
+        show: function (readOnly) {
+            if (readOnly) {
+                this.element.find('.control-buttons-wrapper').hide();
+            } else {
+                this.element.find('.control-buttons-wrapper').show();
+            }
+
+            this.element.find('input#applitools_app_name')
+                .val(applitools.getAppName())
+                .attr("placeholder", applitools.getDefaultAppName());
+            this.element.find('input#applitools_test_name')
+                .val(applitools.getTestName())
+                .attr("placeholder", applitools.getDefaultTestName());
+
+            this.element.show();
         },
-        hide: function() {
-            jQuery(this.element).remove();
-            this.element = null;
+        hide: function (switchToReadOnly) {
+            if (switchToReadOnly) {
+                this.element.find('.control-buttons-wrapper').hide();
+            } else {
+                this.element.hide();
+            }
         }
     },
 
-    applitoolsPanel: {
+    applitoolsResultsPanel: {
         element: null,
-        show: function (status, message) {
-            this.element.html(message).attr('class', 'panel ' + status).show();
+        show: function (isPassed, isSaved, batchUrl) {
+            var appName = applitools.getAppName() || applitools.getDefaultAppName();
+            var testName = applitools.getTestName() || applitools.getDefaultTestName();
+            this.element.find('.test-title').text(appName + ' - ' + testName);
+            this.element.find('a').text(batchUrl).attr('href', batchUrl);
+
+            if (isSaved) {
+                this.element.find('.test-status').text("New test ended");
+                this.element.addClass("passed new");
+            } else if (isPassed) {
+                this.element.find('.test-status').text("Test passed");
+                this.element.addClass("passed");
+            } else {
+                this.element.find('.test-status').text("Test failed");
+                this.element.addClass("failed");
+            }
+
+            this.element.show();
         },
         hide: function () {
             this.element.hide();
+
+            this.element.find('.test-status').empty();
+            this.element.find('.test-title').empty();
+            this.element.find('a').empty().attr('href', '#');
+            this.element.removeClass("passed new failed");
         }
     },
 
@@ -181,16 +215,6 @@ applitools.interface = {
     },
 
     processTestResult: function (data) {
-        var url = "<p class='wrap-ellipsis'>See details at <a href='" + data.appUrls.batch + "' target='_blank'>" + data.appUrls.batch + "</a></p>";
-
-        if (data.isPassed) {
-            this.applitoolsPanel.show('passed', "<p>EYES: Test passed</p>" + url);
-        } else if (data.isSaved) {
-            this.applitoolsPanel.show('passed', "<p>EYES: New test ended</p>" + url);
-        } else {
-            this.applitoolsPanel.show('failed', "<p>EYES: Test failed (Immediate failure report on mismatch)</p>" + url);
-        }
-
         if (data.stepsInfo && !jQuery.isEmptyObject(data.stepsInfo)) {
             var script = builder.getScript();
 
@@ -199,14 +223,15 @@ applitools.interface = {
                 if (data.stepsInfo.hasOwnProperty(key)) {
                     var step = script.getStepWithID(eyesStepsIDs[i++]);
                     if (step) {
-                        step.outcome = data.stepsInfo[key].isDifferent ?
-                            builder.stepdisplay.state.FAILED : builder.stepdisplay.state.SUCCEEDED;
+                        step.outcome = data.stepsInfo[key].isDifferent ? builder.stepdisplay.state.FAILED : builder.stepdisplay.state.SUCCEEDED;
                     }
                 }
             }
 
             builder.stepdisplay.update();
         }
+
+        applitools.interface.applitoolsResultsPanel.show(data.isPassed, data.isSaved, data.appUrls.batch);
 
         function collectStepsIds() {
             var recordedSteps = jQuery('#steps').find('.b-step').get();
@@ -220,11 +245,6 @@ applitools.interface = {
             stepsIDs.sort(function(a, b){return a-b});
             return stepsIDs;
         }
-    },
-
-    titlePrompt: function(defaultTitle) {
-        var title = prompt(_t('__applitools_title_prompt'), defaultTitle);
-        return title != null ? title : defaultTitle;
     },
 
     loadStylesFromFile: function (file, styles) {
@@ -242,5 +262,4 @@ applitools.interface = {
         };
         rawFile.send(null);
     }
-
 };

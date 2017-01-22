@@ -596,7 +596,7 @@ applitools.SelectExplorer = function (top_window, seleniumVersion, callbackFunc)
 
     var styles = this.widget.document.createElement('style');
     styles.type = 'text/css';
-    var path = builder.plugins.getResourcePath('applitools', 'widgetstyles.css');
+    var path = builder.plugins.getResourcePath('applitools', 'styles/selectexplorer.css');
     applitools.interface.loadStylesFromFile(path, styles);
 
     this.widget.root = this.widget.document.documentElement;

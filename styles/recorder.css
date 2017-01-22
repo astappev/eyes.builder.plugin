@@ -1,0 +1,157 @@
+#dialog-attachment-point {
+    right: 1em;
+}
+
+#record-panel {
+    border-bottom: 1px solid #bfbcbc;
+    padding-bottom: 1rem;
+}
+
+.b-step-note {
+    color: #C8720D;
+    background: none;
+    font-size: 1.125rem;
+    padding: 0;
+}
+
+/* Settings dialog */
+.applitools-settings-dialog {
+    position: relative;
+    font-family: 'Lato', sans-serif;
+    font-size: 1.125rem;
+    background-color: #fff;
+    margin-top: 2.75rem;
+    border-radius: 0;
+    padding: 2rem;
+    min-width: 42rem;
+}
+
+.applitools-settings-dialog > *:first-child {
+    margin-top: 0;
+}
+
+.applitools-settings-dialog > *:last-child {
+    margin-bottom: 0;
+}
+
+.applitools-settings-dialog h2 {
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+}
+
+.applitools-settings-dialog hr {
+    border: none;
+    height: 1px;
+    background: #cdcdcd;
+    margin: 1rem -2rem 2rem 0;
+}
+
+.applitools-settings-dialog label,
+.applitools-record-panel label {
+    color: #4f4f4f;
+    font-weight: bold;
+    padding-right: 10px;
+    line-height: 3rem;
+    float: left;
+}
+
+.applitools-settings-dialog .input-wrapper,
+.applitools-record-panel .input-wrapper {
+    overflow: hidden;
+    display: block;
+    padding: 0 4px 0 10px
+}
+
+.applitools-settings-dialog input,
+.applitools-record-panel input {
+    border: 1px solid #cdcdcd;
+    border-radius: 1px;
+    background-color: #fff;
+    color: #3e3e3e;
+    width: 100%;
+    height: 3rem;
+    font-size: 1.13rem;
+    padding: 0.5rem 1rem;
+}
+
+.applitools-settings-dialog a {
+    color: #027971;
+}
+
+.applitools-dialog-close {
+    background: url('img/x_close.png') no-repeat content-box center;
+    background-size: 100%;
+    position: absolute;
+    right: 2rem;
+    top: 2rem;
+    display: block;
+    width: 10px;
+    height: 11px;
+    padding: 0.3rem;
+}
+
+.applitools-dialog-close span {
+    display: none;
+}
+
+/* Record panel */
+.applitools-panel {
+    /*border-top: 1px solid #bfbcbc;*/
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    font-family: 'Lato', sans-serif;
+    font-size: 1.125rem;
+}
+
+.logo-wrapper {
+    margin: 1.5rem 0;
+}
+
+.applitools-logo {
+    background: url('./img/applitools_logo.png') no-repeat center;
+    background-size: 100%;
+    display: block;
+    height: 21px;
+    width: 162px;
+}
+
+.applitools-record-panel .button,
+.applitools-record-panel .button:hover,
+.applitools-record-panel .button:active {
+    font: 400 1.3rem/1.6rem 'Lato', sans-serif;
+    color: #000 !important;
+    background: #f8f8f8;
+    padding: 0.4rem 1.17rem;
+    border-radius: 3px;
+    border: none;
+    box-shadow: none;
+}
+
+.applitools-record-panel .button:hover {
+    background: #efefef;
+}
+
+.applitools-results-panel .test-status-wrapper {
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #494949;
+}
+
+.applitools-results-panel.passed .test-status {
+    color: #22A398;
+}
+
+.applitools-results-panel.failed .test-status {
+    color: #b22415;
+}
+
+.applitools-results-panel a {
+    color: #027971;
+}
+
+p.wrap-ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}

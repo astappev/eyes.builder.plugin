@@ -54,21 +54,78 @@ builder.record.startRecording = function(urlText, seleniumVersion, deleteCookies
 
     // Close session if opened
     applitools.forceCloseSession();
-    // Show controls buttons for quick usage of validate methods
-    applitools.interface.controlButtons.show();
     // Hide panel with results of previous tests ()if opened
-    applitools.interface.applitoolsPanel.hide();
+    applitools.interface.applitoolsResultsPanel.hide();
 };
 
-// Override start recording method
-builder.record.stopAll = (function() {
-    var cached_function = builder.record.stopAll;
+// Override method called on screen is changed
+builder.gui.switchView = (function() {
+    var cached_function = builder.gui.switchView;
     return function() {
-        console.log("builder.record.stopAll()");
+        console.log("builder.gui.switchView()");
         var result = cached_function.apply(this, arguments);
-        applitools.interface.controlButtons.hide();
-        applitools.interface.applitoolsPanel.hide();
-        applitools.closeSession();
+        if (arguments[0] == builder.views.script) {
+            applitools.interface.applitoolsRecordPanel.show(true);
+        }
+        return result;
+    };
+})();
+
+// Override method called on click "Run on Selenium Builder"
+builder.dialogs.rc.show = (function() {
+    var cached_function = builder.dialogs.rc.show;
+    return function() {
+        console.log("builder.dialogs.rc.show()");
+        if (!applitools.getTestName()) {
+            alert(_t('__applitools_test_name_required'));
+            return;
+        }
+        var result = cached_function.apply(this, arguments);
+        return result;
+    };
+})();
+
+// Override method called on start playback
+builder.views.script.onStartRCPlayback = (function() {
+    var cached_function = builder.views.script.onStartRCPlayback;
+    return function() {
+        console.log("builder.views.script.onStartRCPlayback()");
+        applitools.interface.applitoolsRecordPanel.hide();
+        var result = cached_function.apply(this, arguments);
+        return result;
+    };
+})();
+
+// Override method called on click save script
+builder.dialogs.exportscript.save = (function() {
+    var cached_function = builder.dialogs.exportscript.save;
+    return function() {
+        console.log("builder.dialogs.exportscript.save()");
+        applitools.saveVariableToCurrentScript('appName', applitools.getAppName() || applitools.getDefaultAppName());
+        applitools.saveVariableToCurrentScript('testName', applitools.getTestName() || applitools.getDefaultTestName());
+        var result = cached_function.apply(this, arguments);
+        return result;
+    };
+})();
+
+builder.dialogs.exportscript.saveAs = (function() {
+    var cached_function = builder.dialogs.exportscript.saveAs;
+    return function() {
+        console.log("builder.dialogs.exportscript.saveAs()");
+        applitools.saveVariableToCurrentScript('appName', applitools.getAppName() || applitools.getDefaultAppName());
+        applitools.saveVariableToCurrentScript('testName', applitools.getTestName() || applitools.getDefaultTestName());
+        var result = cached_function.apply(this, arguments);
+        return result;
+    };
+})();
+
+// Override stop recording method
+builder.record.stop = (function() {
+    var cached_function = builder.record.stop;
+    return function() {
+        console.log("builder.record.stop()");
+        applitools.interface.applitoolsRecordPanel.hide(true);
+        var result = cached_function.apply(this, arguments);
         return result;
     };
 })();
@@ -93,9 +150,42 @@ builder.record.continueRecording = (function() {
     var cached_function = builder.record.continueRecording;
     return function() {
         console.log("builder.record.continueRecording()");
+        applitools.interface.applitoolsResultsPanel.hide();
+        applitools.interface.applitoolsRecordPanel.show();
         var result = cached_function.apply(this, arguments);
-        applitools.interface.applitoolsPanel.hide();
-        applitools.interface.controlButtons.show();
         return result;
     };
 })();
+
+// Override script parsing method
+builder.selenium2.io.parseScript = (function() {
+    var cached_function = builder.selenium2.io.parseScript;
+    return function() {
+        console.log("builder.selenium2.io.parseScript()");
+        var result = cached_function.apply(this, arguments);
+        if (result && result.data) {
+            applitools.setAppName(result.data.appName);
+            applitools.setTestName(result.data.testName);
+        }
+        return result;
+    };
+})();
+
+builder.record.verifyExplore = function() {
+    builder.record.verifyExploring = true;
+    builder.record.stop();
+    jQuery('#record-panel').show();
+    applitools.interface.applitoolsRecordPanel.show();
+    window.sebuilder.focusRecordingTab();
+    builder.record.verifyExplorer = new builder.VerifyExplorer(
+        window.sebuilder.getRecordingWindow(),
+        builder.getScript().seleniumVersion,
+        function(step) {
+            builder.record.recordStep(step);
+            // Don't immediately stop: this would cause the listener that prevents the click from
+            // actually activating the selected element to be detached prematurely.
+            setTimeout(function() { builder.record.stopVerifyExploring(); }, 1);
+            window.sebuilder.focusRecorderWindow();
+        }
+    );
+};

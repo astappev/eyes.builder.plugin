@@ -98,75 +98,34 @@ var applitools = {
     },
 
     getAppName: function () {
-        if (this.appName === null) {
-            var prefName = "extensions.seleniumbuilder.plugins.applitools.appName", defaultVal = null;
-            try {
-                this.appName = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : defaultVal;
-            } catch (e) {
-                this.appName = defaultVal;
-            }
-        }
-
         return this.appName;
     },
 
     setAppName: function (newAppName) {
         this.appName = newAppName;
-        var prefName = "extensions.seleniumbuilder.plugins.applitools.appName";
-        try {
-            bridge.prefManager.setCharPref(prefName, this.appName);
-        } catch (e) {
-            console.error("Can't save pref", e);
-        }
     },
 
     getDefaultTestName: function () {
-        return bridge.getRecordingWindow().location.pathname;
+        // return bridge.getRecordingWindow().location.pathname;
+        return '';
     },
 
     getTestName: function () {
-        if (this.testName === null) {
-            var prefName = "extensions.seleniumbuilder.plugins.applitools.testName", defaultVal = null;
-            try {
-                this.testName = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) : defaultVal;
-            } catch (e) {
-                this.testName = defaultVal;
-            }
-        }
-
         return this.testName;
     },
 
     setTestName: function (newTestName) {
         this.testName = newTestName;
-        var prefName = "extensions.seleniumbuilder.plugins.applitools.testName";
-        try {
-            bridge.prefManager.setCharPref(prefName, this.testName);
-        } catch (e) {
-            console.error("Can't save pref", e);
-        }
     },
 
-    getIsAskForMethodsTitle: function () {
-        if (this.isAskForMethodsTitle === null) {
-            var prefName = "extensions.seleniumbuilder.plugins.applitools.isAskForMethodsTitle", defaultVal = false;
-            try {
-                this.isAskForMethodsTitle = bridge.prefManager.prefHasUserValue(prefName) ? bridge.prefManager.getCharPref(prefName) === "true" : defaultVal;
-            } catch (e) {
-                this.isAskForMethodsTitle = defaultVal;
+    saveVariableToCurrentScript: function (varName, varValue) {
+        var script = builder.suite.getCurrentScript();
+        if (script) {
+            if (varValue) {
+                script.data[varName] = varValue;
+            } else {
+                delete script.data[varName];
             }
-        }
-
-        return this.isAskForMethodsTitle;
-    },
-
-    setIsAskForMethodsTitle: function (value) {
-        this.isAskForMethodsTitle = !!value;
-        var prefName = "extensions.seleniumbuilder.plugins.applitools.isAskForMethodsTitle";
-        try {
-            bridge.prefManager.setCharPref(prefName, this.isAskForMethodsTitle);
-        } catch (e) {
-            console.error("Can't save pref", e);
         }
     },
 
@@ -184,10 +143,6 @@ var applitools = {
 
     validateWindow: function () {
         var title = applitools.getRecWinTitle();
-        if (applitools.getIsAskForMethodsTitle()) {
-            title = applitools.interface.titlePrompt(title);
-        }
-
         var checkWindowStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkWindow"], title);
         builder.record.recordStep(checkWindowStep);
     },
@@ -199,29 +154,24 @@ var applitools = {
             builder.record.verifyExploring = true;
             builder.record.stop();
             jQuery('#record-panel').show();
+            applitools.interface.applitoolsRecordPanel.show();
             bridge.focusRecordingTab();
             applitools.interface.notificationBox.show(_t('__applitools_check_element_notification_message'));
             builder.record.verifyExplorer = new builder.VerifyExplorer(
                 bridge.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
                 function(locator) {
-                    jQuery('#record-panel').hide();
-
                     // Don't immediately stop: this would cause the listener that prevents the click from
                     // actually activating the selected element to be detached prematurely.
                     setTimeout(function() {
-                        applitools.interface.notificationBox.hide();
                         builder.record.stopVerifyExploring();
-                        bridge.focusRecorderWindow();
-
-                        var title = applitools.getRecWinTitle();
-                        if (applitools.getIsAskForMethodsTitle()) {
-                            title = applitools.interface.titlePrompt(title);
-                        }
-
-                        var checkElementStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkElement"], locator, title);
-                        builder.record.recordStep(checkElementStep);
+                        applitools.interface.notificationBox.hide();
                     }, 1);
+
+                    bridge.focusRecorderWindow();
+                    var title = applitools.getRecWinTitle();
+                    var checkElementStep = new builder.Step(builder.selenium2.stepTypes["eyes.checkElement"], locator, title);
+                    builder.record.recordStep(checkElementStep);
                 },
                 true
             );
@@ -235,36 +185,32 @@ var applitools = {
             builder.record.verifyExploring = true;
             builder.record.stop();
             jQuery('#record-panel').show();
+            applitools.interface.applitoolsRecordPanel.show();
             bridge.focusRecordingTab();
             applitools.interface.notificationBox.show(_t('__applitools_check_region_notification_message'));
             builder.record.verifyExplorer = new applitools.SelectExplorer(
                 bridge.getRecordingWindow(),
                 builder.getScript().seleniumVersion,
                 function(region) {
-                    jQuery('#record-panel').hide();
-
                     // Don't immediately stop: this would cause the listener that prevents the click from
                     // actually activating the selected element to be detached prematurely.
                     setTimeout(function() {
-                        applitools.interface.notificationBox.hide();
                         builder.record.stopVerifyExploring();
-                        bridge.focusRecorderWindow();
-
-                        var title = applitools.getRecWinTitle();
-                        if (applitools.getIsAskForMethodsTitle()) {
-                            title = applitools.interface.titlePrompt(title);
-                        }
-
-                        var checkRegionStep = new builder.Step(
-                            builder.selenium2.stepTypes["eyes.checkRegion"],
-                            region.top.toString(),
-                            region.left.toString(),
-                            region.width.toString(),
-                            region.height.toString(),
-                            title
-                        );
-                        builder.record.recordStep(checkRegionStep);
+                        applitools.interface.notificationBox.hide();
                     }, 1);
+
+                    bridge.focusRecorderWindow();
+
+                    var title = applitools.getRecWinTitle();
+                    var checkRegionStep = new builder.Step(
+                        builder.selenium2.stepTypes["eyes.checkRegion"],
+                        region.top.toString(),
+                        region.left.toString(),
+                        region.width.toString(),
+                        region.height.toString(),
+                        title
+                    );
+                    builder.record.recordStep(checkRegionStep);
                 }
             );
         }
@@ -289,6 +235,7 @@ var applitools = {
             if (!that.eyes.isOpen()) {
                 var appName = that.getAppName() || that.getDefaultAppName();
                 var testName = that.getTestName() || that.getDefaultTestName();
+                console.log("Opening new session...", appName, testName);
                 var viewportSize = that.getRecWinViewportSize();
                 that.eyes.open(appName, testName, viewportSize).then(function () {
                     console.log("Eyes: new session opened.");
