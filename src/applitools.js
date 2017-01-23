@@ -5,6 +5,8 @@ var applitools = {
     testName: null,
     userAgent: null,
 
+    WAIT_BEFORE_SCREENSHOT: 100, // ms
+
     eyes: null,
     promiseFactory: null,
     customTypes: {

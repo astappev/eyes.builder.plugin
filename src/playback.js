@@ -23,8 +23,11 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
     var title = builder.selenium2.rcPlayback.param(r, "title");
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.updateUserAgent(r).then(function () {
+    playbackUtils.wait(r, applitools.WAIT_BEFORE_SCREENSHOT).then(function () {
         playbackUtils.updateProgressStatus(r, 5);
+        return playbackUtils.updateUserAgent(r);
+    }).then(function () {
+        playbackUtils.updateProgressStatus(r, 10);
         return playbackUtils.getScreenshot(r);
     }).then(function (screenshot) {
         playbackUtils.updateProgressStatus(r, 55);
@@ -45,8 +48,11 @@ builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
     var elRegion;
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.updateUserAgent(r).then(function () {
+    playbackUtils.wait(r, applitools.WAIT_BEFORE_SCREENSHOT).then(function () {
         playbackUtils.updateProgressStatus(r, 5);
+        return playbackUtils.updateUserAgent(r);
+    }).then(function () {
+        playbackUtils.updateProgressStatus(r, 10);
         return playbackUtils.getRegionByElement(r, locator);
     }).then(function (region) {
         elRegion = region;
@@ -75,8 +81,11 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
     };
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.updateUserAgent(r).then(function () {
+    playbackUtils.wait(r, applitools.WAIT_BEFORE_SCREENSHOT).then(function () {
         playbackUtils.updateProgressStatus(r, 5);
+        return playbackUtils.updateUserAgent(r);
+    }).then(function () {
+        playbackUtils.updateProgressStatus(r, 10);
         return playbackUtils.getScreenshot(r);
     }).then(function (screenshot) {
         playbackUtils.updateProgressStatus(r, 55);
@@ -110,6 +119,14 @@ var playbackUtils = {
             }, function () {
                 reject("Can not receive userAgent");
             });
+        });
+    },
+
+    wait: function (r, milliseconds) {
+        return applitools.promiseFactory.makePromise(function (resolve) {
+            window.setTimeout(function () {
+                resolve();
+            }, milliseconds);
         });
     },
 
