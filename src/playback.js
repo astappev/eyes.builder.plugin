@@ -28,13 +28,7 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
         return playbackUtils.updateUserAgent(r);
     }).then(function () {
         playbackUtils.updateProgressStatus(r, 10);
-        return playbackUtils.getScreenshot(r);
-    }).then(function (screenshot) {
-        playbackUtils.updateProgressStatus(r, 55);
-        return screenshot.asObject();
-    }).then(function (imageObj) {
-        playbackUtils.updateProgressStatus(r, 60);
-        return applitools.checkImage(imageObj.imageBuffer, title);
+        return applitools.checkImage(playbackUtils.getImageProvider(r), title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -57,13 +51,7 @@ builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
     }).then(function (region) {
         elRegion = region;
         playbackUtils.updateProgressStatus(r, 10);
-        return playbackUtils.getScreenshot(r);
-    }).then(function (screenshot) {
-        playbackUtils.updateProgressStatus(r, 55);
-        return screenshot.asObject();
-    }).then(function (imageObj) {
-        playbackUtils.updateProgressStatus(r, 60);
-        return applitools.checkRegion(elRegion, imageObj.imageBuffer, title);
+        return applitools.checkRegion(elRegion, playbackUtils.getImageProvider(r), title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -86,13 +74,7 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
         return playbackUtils.updateUserAgent(r);
     }).then(function () {
         playbackUtils.updateProgressStatus(r, 10);
-        return playbackUtils.getScreenshot(r);
-    }).then(function (screenshot) {
-        playbackUtils.updateProgressStatus(r, 55);
-        return screenshot.asObject();
-    }).then(function (imageObj) {
-        playbackUtils.updateProgressStatus(r, 60);
-        return applitools.checkRegion(region, imageObj.imageBuffer, title);
+        return applitools.checkRegion(region, playbackUtils.getImageProvider(r), title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -120,6 +102,15 @@ var playbackUtils = {
                 reject("Can not receive userAgent");
             });
         });
+    },
+
+    getImageProvider: function (r) {
+        var that = this;
+        return {
+            getScreenshot: function () {
+                return that.getScreenshot(r);
+            }
+        }
     },
 
     wait: function (r, milliseconds) {
