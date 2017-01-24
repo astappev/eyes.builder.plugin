@@ -302,7 +302,7 @@ var applitools = {
         return that.promiseFactory.makePromise(function (resolve, reject) {
             return that.getSession().then(function () {
                 console.log("Eyes: checking image...");
-                return that.eyes.checkImageFromProvider(imageProvider, title).then(function (result) {
+                return that.eyes.checkImage(imageProvider, title).then(function (result) {
                     console.log("Eyes: check image - done.");
                     resolve(result);
                 }, function (err) {
@@ -321,7 +321,7 @@ var applitools = {
         return that.promiseFactory.makePromise(function (resolve, reject) {
             return that.getSession().then(function () {
                 console.log("Eyes: checking region...");
-                return that.eyes.checkRegionFromProvider(region, imageProvider, title).then(function (result) {
+                return that.eyes.checkRegion(region, imageProvider, title).then(function (result) {
                     console.log("Eyes: check region - done.");
                     resolve(result);
                 }, function (err) {

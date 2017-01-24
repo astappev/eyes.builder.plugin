@@ -23,12 +23,16 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
     var title = builder.selenium2.rcPlayback.param(r, "title");
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.wait(r, applitools.WAIT_BEFORE_SCREENSHOT).then(function () {
-        playbackUtils.updateProgressStatus(r, 5);
-        return playbackUtils.updateUserAgent(r);
-    }).then(function () {
-        playbackUtils.updateProgressStatus(r, 10);
-        return applitools.checkImage(playbackUtils.getImageProvider(r), title);
+    playbackUtils.updateUserAgent(r).then(function () {
+        var i = 0; // just for updating progress bar
+        var imageProvider = playbackUtils.createImageProvider(r, function () {
+            if (i++ == 0) playbackUtils.updateProgressStatus(r, 10);
+            else if (i == 3) playbackUtils.updateProgressStatus(r, 55);
+        }, function () {
+            if (i++ == 1) playbackUtils.updateProgressStatus(r, 40);
+            else if (i == 4) playbackUtils.updateProgressStatus(r, 85);
+        });
+        return applitools.checkImage(imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -42,16 +46,20 @@ builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
     var elRegion;
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.wait(r, applitools.WAIT_BEFORE_SCREENSHOT).then(function () {
+    playbackUtils.getRegionByElement(r, locator).then(function () {
         playbackUtils.updateProgressStatus(r, 5);
         return playbackUtils.updateUserAgent(r);
-    }).then(function () {
-        playbackUtils.updateProgressStatus(r, 10);
-        return playbackUtils.getRegionByElement(r, locator);
     }).then(function (region) {
         elRegion = region;
-        playbackUtils.updateProgressStatus(r, 10);
-        return applitools.checkRegion(elRegion, playbackUtils.getImageProvider(r), title);
+        var i = 0; // just for updating progress bar
+        var imageProvider = playbackUtils.createImageProvider(r, function () {
+            if (i++ == 0) playbackUtils.updateProgressStatus(r, 10);
+            else if (i == 3) playbackUtils.updateProgressStatus(r, 55);
+        }, function () {
+            if (i++ == 1) playbackUtils.updateProgressStatus(r, 40);
+            else if (i == 4) playbackUtils.updateProgressStatus(r, 85);
+        });
+        return applitools.checkRegion(elRegion, imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -69,12 +77,16 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
     };
 
     playbackUtils.updateProgressStatus(r, 1);
-    playbackUtils.wait(r, applitools.WAIT_BEFORE_SCREENSHOT).then(function () {
-        playbackUtils.updateProgressStatus(r, 5);
-        return playbackUtils.updateUserAgent(r);
-    }).then(function () {
-        playbackUtils.updateProgressStatus(r, 10);
-        return applitools.checkRegion(region, playbackUtils.getImageProvider(r), title);
+    playbackUtils.updateUserAgent(r).then(function () {
+        var i = 0; // just for updating progress bar
+        var imageProvider = playbackUtils.createImageProvider(r, function () {
+            if (i++ == 0) playbackUtils.updateProgressStatus(r, 10);
+            else if (i == 3) playbackUtils.updateProgressStatus(r, 55);
+        }, function () {
+            if (i++ == 1) playbackUtils.updateProgressStatus(r, 40);
+            else if (i == 4) playbackUtils.updateProgressStatus(r, 85);
+        });
+        return applitools.checkRegion(region, imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -83,6 +95,19 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
 };
 
 var playbackUtils = {
+    createImageProvider: function (r, beforeCallback, afterCallback) {
+        var that = this;
+        return {
+            getScreenshot: function () {
+                beforeCallback();
+                return that.getScreenshot(r).then(function (screenshot) {
+                    afterCallback();
+                    return screenshot;
+                });
+            }
+        }
+    },
+
     updateProgressStatus: function (r, percentage) {
         r.stepStateCallback(r, r.script, r.currentStep, r.currentStepIndex, builder.stepdisplay.state.NO_CHANGE, null, null, percentage);
     },
@@ -104,20 +129,11 @@ var playbackUtils = {
         });
     },
 
-    getImageProvider: function (r) {
-        var that = this;
-        return {
-            getScreenshot: function () {
-                return that.getScreenshot(r);
-            }
-        }
-    },
-
-    wait: function (r, milliseconds) {
+    sleep: function (r, ms) {
         return applitools.promiseFactory.makePromise(function (resolve) {
             window.setTimeout(function () {
                 resolve();
-            }, milliseconds);
+            }, ms);
         });
     },
 
@@ -193,10 +209,12 @@ var playbackUtils = {
 
     takeScreenshot: function (r) {
         return applitools.promiseFactory.makePromise(function (resolve) {
-            builder.selenium2.rcPlayback.send(r, "GET", "/screenshot", "", function (r, response) {
-                var imageBuffer = new window.Buffer(response.value, 'base64');
-                var mutableImage = new window.EyesUtils.MutableImage(imageBuffer, applitools.promiseFactory);
-                resolve(mutableImage);
+            playbackUtils.sleep(r, applitools.WAIT_BEFORE_SCREENSHOT).then(function () {
+                builder.selenium2.rcPlayback.send(r, "GET", "/screenshot", "", function (r, response) {
+                    var imageBuffer = new window.Buffer(response.value, 'base64');
+                    var mutableImage = new window.EyesUtils.MutableImage(imageBuffer, applitools.promiseFactory);
+                    resolve(mutableImage);
+                });
             });
         });
     },
