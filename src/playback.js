@@ -1,3 +1,5 @@
+var JS_GET_DOCUMENT_READY_STATUS = "return document.readyState";
+
 var JS_GET_USER_AGENT = "return navigator.userAgent";
 
 var JS_GET_CURRENT_SCROLL_POSITION =
@@ -24,6 +26,9 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
 
     playbackUtils.updateProgressStatus(r, 1);
     playbackUtils.updateUserAgent(r).then(function () {
+        playbackUtils.updateProgressStatus(r, 5);
+        return playbackUtils.waitForDocumentReady(r);
+    }).then(function () {
         var i = 0; // just for updating progress bar
         var imageProvider = playbackUtils.createImageProvider(r, function () {
             if (i++ == 0) playbackUtils.updateProgressStatus(r, 10);
@@ -47,8 +52,11 @@ builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
 
     playbackUtils.updateProgressStatus(r, 1);
     playbackUtils.getRegionByElement(r, locator).then(function () {
-        playbackUtils.updateProgressStatus(r, 5);
+        playbackUtils.updateProgressStatus(r, 3);
         return playbackUtils.updateUserAgent(r);
+    }).then(function () {
+        playbackUtils.updateProgressStatus(r, 6);
+        return playbackUtils.waitForDocumentReady(r);
     }).then(function (region) {
         elRegion = region;
         var i = 0; // just for updating progress bar
@@ -78,6 +86,9 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
 
     playbackUtils.updateProgressStatus(r, 1);
     playbackUtils.updateUserAgent(r).then(function () {
+        playbackUtils.updateProgressStatus(r, 5);
+        return playbackUtils.waitForDocumentReady(r);
+    }).then(function () {
         var i = 0; // just for updating progress bar
         var imageProvider = playbackUtils.createImageProvider(r, function () {
             if (i++ == 0) playbackUtils.updateProgressStatus(r, 10);
@@ -135,6 +146,39 @@ var playbackUtils = {
                 resolve();
             }, ms);
         });
+    },
+
+    waitForDocumentReady: function (r, retries) {
+        var that = this;
+        return applitools.promiseFactory.makePromise(function (resolve, reject) {
+            that.getDocumentReadyStatus(r).then(function (value) {
+                if (value === "complete") {
+                    resolve();
+                    return;
+                }
+
+                if (retries === 0) {
+                    reject("waitForDocumentReady: retries is out");
+                    return;
+                }
+
+                if (!retries) {
+                    retries = 3;
+                }
+
+                that.sleep(r, 1000).then(function () {
+                    return that.waitForDocumentReady(r, retries - 1).then(function () {
+                        resolve();
+                    }, function (err) {
+                        reject(err);
+                    });
+                });
+            });
+        });
+    },
+
+    getDocumentReadyStatus: function (r) {
+        return this.executeScript(r, JS_GET_DOCUMENT_READY_STATUS);
     },
 
     getViewportSize: function (r) {
