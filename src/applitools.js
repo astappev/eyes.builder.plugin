@@ -10,6 +10,16 @@ var applitools = {
     eyes: null,
     promiseFactory: null,
     customTypes: {
+        "setViewportSize": {
+            "params": ["width", "height"],
+            "docs": {
+                "params": {
+                    "width": "The new viewport width, in pixels.",
+                    "height": "The new viewport height, in pixels."
+                },
+                "description": "Changes the size of the playback viewport."
+            }
+        },
         "eyes.checkWindow": {
             "params": ["title"],
             "docs": {
@@ -57,6 +67,7 @@ var applitools = {
         }
 
         builder.selenium2.categories.push([_t('__applitools'), items]);
+        builder.selenium2.__stepNotes["setViewportSize"] = 'sel2_must_playback_in_foreground';
 
         this.promiseFactory = new window.EyesUtils.PromiseFactory(function (asyncAction) {
             return new window.RSVP.Promise(asyncAction);

@@ -11,14 +11,15 @@
   "icon": "icon.png",
   "load": [
     "lib/eyes-browser.min.js",
-    "src/exports/java.js",
-    "src/exports/node-selenium.js",
-    "src/exports/node-protractor.js",
     "src/translations.js",
     "src/applitools.js",
-    "src/interface.js",
-    "src/selectexplorer.js",
-    "src/playback.js",
-    "plugin.js"
+    "plugin.js",
+    "src/views/interface.js",
+    "src/views/selectexplorer.js",
+    "src/playback/playbackutils.js",
+    "src/playback/playback.js",
+    "src/formats/java.js",
+    "src/formats/node-selenium.js",
+    "src/formats/node-protractor.js"
   ]
 }

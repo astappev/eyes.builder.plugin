@@ -24,7 +24,7 @@ builder.selenium2.io.addLangFormatter({
             "\t\teyes.checkRegionBy(by.{locatorBy}({locator}), {title}); \n",
         "eyes.checkRegion":
             "\t\teyes.checkRegion({width: {width}, height: {height}, top: {top}, left: {left}}, {title}); \n",
-        "setWindowSize":
+        "setViewportSize":
             "\t\teyes.setViewportSize({width: {width}, height: {height}});\n",
         //--- navigation
         "get":
