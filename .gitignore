@@ -1,0 +1,13 @@
+# Mac
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# JetBrains
+.idea
+*.iml
+
+# Compiled/intermediate files
+target/
