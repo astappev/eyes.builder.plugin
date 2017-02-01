@@ -3,6 +3,7 @@ var applitools = {
     serverUrl: null,
     appName: null,
     testName: null,
+    matchLevel: null,
     userAgent: null,
 
     WAIT_BEFORE_SCREENSHOT: 100, // ms
@@ -179,6 +180,22 @@ var applitools = {
         this.userAgent = newUserAgent;
     },
 
+    getAvailableMatchLevels: function () {
+        return window.EyesImages.MatchLevel;
+    },
+
+    getMatchLevel: function (useDefaultIfNotSpecified) {
+        if (!this.matchLevel && useDefaultIfNotSpecified) {
+            return window.EyesImages.MatchLevel.Strict;
+        }
+
+        return this.matchLevel;
+    },
+
+    setMatchLevel: function (newMatchLevel) {
+        this.matchLevel = newMatchLevel;
+    },
+
     saveVariableToCurrentScript: function (varName, varValue) {
         var script = builder.suite.getCurrentScript();
         if (script) {
@@ -289,6 +306,8 @@ var applitools = {
                 that.eyes = new window.EyesImages.Eyes(that.getServerUrl());
                 that.eyes.setApiKey(apiKey);
                 that.eyes.setInferredEnvironment("useragent:" + that.getUserAgent(true));
+                var imageMatch = new window.EyesImages.ImageMatchSettings(that.getMatchLevel(true));
+                that.eyes.setDefaultMatchSettings(imageMatch);
             }
 
             if (!that.eyes.isOpen()) {

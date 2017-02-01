@@ -10,6 +10,7 @@ m.__applitools_server_url = "Server URL:";
 m.__applitools_close = "Close";
 m.__applitools_app_name = "App Name:";
 m.__applitools_test_name = "Test Name:";
+m.__applitools_match_level = "Match Level:";
 m.__applitools_title_prompt = "Please, enter method's title";
 m.__applitools_validate_window = "Verify the window";
 m.__applitools_validate_element = "Verify an element";

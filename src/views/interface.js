@@ -23,16 +23,18 @@ applitools.interface = {
             ),
             newNode('span', {'class': 'close'}),
             newNode('hr'),
-            newNode('p', {},
-                newNode('label',  {'for' : 'applitools_server_url'}, _t('__applitools_server_url')),
-                newNode('span', {'class': 'input-wrapper'},
-                    newNode('input', {id: 'applitools_server_url', type: 'text'})
-                )
-            ),
-            newNode('p', {},
-                newNode('label',  {'for' : 'applitools_apikey'}, _t('__applitools_apikey')),
-                newNode('span', {'class': 'input-wrapper'},
-                    newNode('input', {id: 'applitools_apikey', type: 'text'})
+            newNode('div', {'class': 'applitools-form'},
+                newNode('p', {},
+                    newNode('label',  {'for' : 'applitools_server_url'}, _t('__applitools_server_url')),
+                    newNode('span', {'class': 'input-wrapper'},
+                        newNode('input', {id: 'applitools_server_url', type: 'text'})
+                    )
+                ),
+                newNode('p', {},
+                    newNode('label',  {'for' : 'applitools_apikey'}, _t('__applitools_apikey')),
+                    newNode('span', {'class': 'input-wrapper'},
+                        newNode('input', {id: 'applitools_apikey', type: 'text'})
+                    )
                 )
             ),
             newNode('p', {},
@@ -44,14 +46,14 @@ applitools.interface = {
         this.settingsDialog.element = $(settingsNode);
 
         // add panels
-        var recordNode = newNode('div', {'id': 'applitools-panel', 'class': 'panel applitools-panel', 'style': 'display: none;'},
+        var recordNode = newNode('div', {'id': 'applitools-panel', 'class': 'panel applitools applitools-panel', 'style': 'display: none;'},
             newNode('p', {'class': 'logo-wrapper'}, newNode('span', {'class': 'applitools-logo'})),
             newNode('div', {'class': 'controls-wrapper'},
                 newNode('a', {'href': '#', 'id': 'applitools-validate-window', 'class': 'applitools-button'}, _t('__applitools_validate_window')),
                 newNode('a', {'href': '#', 'id': 'applitools-validate-element', 'class': 'applitools-button'}, _t('__applitools_validate_element')),
                 newNode('a', {'href': '#', 'id': 'applitools-validate-region', 'class': 'applitools-button'}, _t('__applitools_validate_region'))
             ),
-            newNode('div', {'class': 'form-wrapper'},
+            newNode('div', {'class': 'form-wrapper applitools-form'},
                 newNode('p',
                     newNode('label',  {'for' : 'applitools_app_name'}, _t('__applitools_app_name')),
                     newNode('span', {'class': 'input-wrapper'},
@@ -62,6 +64,12 @@ applitools.interface = {
                     newNode('label',  {'for' : 'applitools_test_name'}, _t('__applitools_test_name')),
                     newNode('span', {'class': 'input-wrapper'},
                         newNode('input', {id: 'applitools_test_name', type: 'text'})
+                    )
+                ),
+                newNode('p',
+                    newNode('label',  {'for' : 'applitools_match_level'}, _t('__applitools_match_level')),
+                    newNode('span', {'class': 'select-wrapper'},
+                        newNode('select', {id: 'applitools_match_level'})
                     )
                 )
             ),
@@ -114,6 +122,11 @@ applitools.interface = {
             applitools.setTestName(newValue);
         });
 
+        jQuery(document).on('change', 'select#applitools_match_level', function () {
+            var newValue = this.value;
+            applitools.setMatchLevel(newValue);
+        });
+
         jQuery('#record-stop-button').off('click').on('click', function (e) {
             if (!applitools.getTestName()) {
                 alert(_t('__applitools_test_name_required'));
@@ -146,6 +159,7 @@ applitools.interface = {
 
     applitoolsPanel: {
         element: null,
+        requireInit: true,
         showRecordPanel: function (formOnly) {
             if (formOnly) {
                 this.element.find('.controls-wrapper').hide();
@@ -157,12 +171,22 @@ applitools.interface = {
             this.element.find('.results-wrapper').hide();
             this.element.removeClass("passed new failed aborted");
 
-            this.element.find('input#applitools_app_name')
-                .val(applitools.getAppName())
-                .attr("placeholder", applitools.getDefaultAppName());
-            this.element.find('input#applitools_test_name')
-                .val(applitools.getTestName())
-                .attr("placeholder", applitools.getDefaultTestName());
+            if (this.requireInit) {
+                this.requireInit = false;
+
+                this.element.find('input#applitools_app_name')
+                    .val(applitools.getAppName())
+                    .attr("placeholder", applitools.getDefaultAppName());
+                this.element.find('input#applitools_test_name')
+                    .val(applitools.getTestName())
+                    .attr("placeholder", applitools.getDefaultTestName());
+
+                var matchLevel = this.element.find('select#applitools_match_level');
+                $.each(applitools.getAvailableMatchLevels(), function(key, value) {
+                    matchLevel.append($("<option></option>").attr("value", key).text(value));
+                });
+                matchLevel.val(applitools.getMatchLevel(true));
+            }
 
             this.element.show();
         },

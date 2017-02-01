@@ -55,24 +55,24 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
     margin: 1rem -2rem 2rem 0;
 }
 
-.applitools-settings-dialog label,
-.applitools-panel label {
+.applitools-form label {
     color: #4f4f4f;
     font-weight: bold;
-    width: 6rem;
+    width: 6.4rem;
     line-height: 3rem;
     float: left;
 }
 
-.applitools-settings-dialog .input-wrapper,
-.applitools-panel .input-wrapper {
+.applitools-form .input-wrapper,
+.applitools-form .select-wrapper {
     overflow: hidden;
     display: block;
     padding-left: 1rem;
+    position: relative;
 }
 
-.applitools-settings-dialog input,
-.applitools-panel input {
+.applitools-form input,
+.applitools-form select {
     border: 1px solid #cdcdcd;
     border-radius: 1px;
     background-color: #fff;
@@ -81,6 +81,32 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
     height: 3rem;
     font-size: 1.13rem;
     padding: 0.5rem 1rem;
+}
+
+.applitools-form input:hover,
+.applitools-form select:hover {
+    color: #0b7ba2;
+}
+
+.applitools-form .select-wrapper:after {
+    display: block;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 9px;
+    height: 7px;
+    background-image: url(img/dropdown_arrow_regular.png);
+    content: "";
+}
+
+.applitools-form .select-wrapper:hover:after {
+    background-image: url(img/dropdown_arrow_over.png);
+}
+
+.applitools-form select {
+    -moz-appearance: none;
+    text-indent: 0.01px;
+    text-overflow: '';
 }
 
 .applitools-settings-dialog a {
@@ -110,6 +136,24 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
     margin-bottom: 1rem;
     font-family: 'Lato', sans-serif;
     font-size: 1.125rem;
+}
+
+.applitools-panel .test-status-wrapper {
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #494949;
+}
+
+.applitools-panel.passed .test-status {
+    color: #22A398;
+}
+
+.applitools-panel.failed .test-status {
+    color: #b22415;
+}
+
+.applitools-panel.aborted .test-status {
+    color: #C8720D;
 }
 
 .logo-wrapper {
@@ -149,20 +193,11 @@ a.applitools-button:hover {
     color: #00c5b4;
 }
 
-.applitools-panel .test-status-wrapper {
-    font-weight: bold;
-    font-size: 1.3rem;
-    color: #494949;
+select#applitools_match_level {
+    text-indent: 10px;
+    background: #fff url(img/icon_match_level_regular.png) no-repeat 4px 4px;
 }
 
-.applitools-panel.passed .test-status {
-    color: #22A398;
-}
-
-.applitools-panel.failed .test-status {
-    color: #b22415;
-}
-
-.applitools-panel.aborted .test-status {
-    color: #C8720D;
+select#applitools_match_level:hover {
+    background-image: url(img/icon_match_level_over.png);
 }
