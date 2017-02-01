@@ -40,15 +40,18 @@ applitools.interface = {
             )
         );
 
+        jQuery("#dialog-attachment-point").append(settingsNode);
+        this.settingsDialog.element = $(settingsNode);
+
         // add panels
-        var recordNode = newNode('div', {'id': 'applitools-record-panel', 'class': 'panel applitools-panel applitools-record-panel', 'style': 'display: none;'},
+        var recordNode = newNode('div', {'id': 'applitools-panel', 'class': 'panel applitools-panel', 'style': 'display: none;'},
             newNode('p', {'class': 'logo-wrapper'}, newNode('span', {'class': 'applitools-logo'})),
-            newNode('div', {'class': 'control-buttons-wrapper'},
+            newNode('div', {'class': 'controls-wrapper'},
                 newNode('a', {'href': '#', 'id': 'applitools-validate-window', 'class': 'applitools-button'}, _t('__applitools_validate_window')),
                 newNode('a', {'href': '#', 'id': 'applitools-validate-element', 'class': 'applitools-button'}, _t('__applitools_validate_element')),
                 newNode('a', {'href': '#', 'id': 'applitools-validate-region', 'class': 'applitools-button'}, _t('__applitools_validate_region'))
             ),
-            newNode('div',
+            newNode('div', {'class': 'form-wrapper'},
                 newNode('p',
                     newNode('label',  {'for' : 'applitools_app_name'}, _t('__applitools_app_name')),
                     newNode('span', {'class': 'input-wrapper'},
@@ -61,25 +64,19 @@ applitools.interface = {
                         newNode('input', {id: 'applitools_test_name', type: 'text'})
                     )
                 )
-            )
-        );
-
-        var resultsNode = newNode('div', {'id': 'applitools-results-panel', 'class': 'panel applitools-panel applitools-results-panel', 'style': 'display: none;'},
-            newNode('p', {'class': 'logo-wrapper'}, newNode('span', {'class': 'applitools-logo'})),
-            newNode('p', {'class': 'test-status-wrapper'},
-                newNode('span', {'class': 'test-status'}), ': ', newNode('span', {'class': 'test-title'})
             ),
-            newNode('p',
-                newNode('a', {'href': '#', 'target': '_blank', 'class': 'applitools-button'}, _t('__applitools_see_details_here'))
+            newNode('div', {'class': 'results-wrapper'},
+                newNode('p', {'class': 'test-status-wrapper'},
+                    newNode('span', {'class': 'test-status'}), ': ', newNode('span', {'class': 'test-title'})
+                ),
+                newNode('p',
+                    newNode('a', {'href': '#', 'target': '_blank', 'class': 'applitools-button'}, _t('__applitools_see_details_here'))
+                )
             )
         );
 
-        jQuery("#dialog-attachment-point").append(settingsNode);
-        this.settingsDialog.element = $(settingsNode);
-
-        jQuery('#panels').append(recordNode).append(resultsNode);
-        this.applitoolsRecordPanel.element = $(recordNode);
-        this.applitoolsResultsPanel.element = $(resultsNode);
+        jQuery('#panels').append(recordNode);
+        this.applitoolsPanel.element = $(recordNode);
 
         jQuery(document).on('click', '#applitools-settings-close', function () {
             applitools.interface.settingsDialog.hide();
@@ -127,8 +124,7 @@ applitools.interface = {
         });
 
         jQuery('#edit-clearresults').on('click', function() {
-            applitools.interface.applitoolsResultsPanel.hide();
-            applitools.interface.applitoolsRecordPanel.show(true);
+            applitools.interface.applitoolsPanel.showRecordPanel(true);
         });
     },
 
@@ -148,14 +144,18 @@ applitools.interface = {
         }
     },
 
-    applitoolsRecordPanel: {
+    applitoolsPanel: {
         element: null,
-        show: function (readOnly) {
-            if (readOnly) {
-                this.element.find('.control-buttons-wrapper').hide();
+        showRecordPanel: function (formOnly) {
+            if (formOnly) {
+                this.element.find('.controls-wrapper').hide();
             } else {
-                this.element.find('.control-buttons-wrapper').show();
+                this.element.find('.controls-wrapper').show();
             }
+
+            this.element.find('.form-wrapper').show();
+            this.element.find('.results-wrapper').hide();
+            this.element.removeClass("passed new failed aborted");
 
             this.element.find('input#applitools_app_name')
                 .val(applitools.getAppName())
@@ -166,34 +166,29 @@ applitools.interface = {
 
             this.element.show();
         },
-        hide: function (switchToReadOnly) {
-            if (switchToReadOnly) {
-                this.element.find('.control-buttons-wrapper').hide();
-            } else {
-                this.element.hide();
-            }
-        }
-    },
+        showResultsPanel: function (isPassed, isSaved, isAborted, batchUrl) {
+            this.element.find('.controls-wrapper').hide();
+            this.element.find('.form-wrapper').hide();
+            this.element.find('.results-wrapper').show();
+            this.element.removeClass("passed new failed aborted");
 
-    applitoolsResultsPanel: {
-        element: null,
-        show: function (isPassed, isSaved, isAborted, batchUrl) {
+            var resultsWrapper = this.element.find('.results-wrapper');
             var appName = applitools.getAppName(true);
             var testName = applitools.getTestName(true);
-            this.element.find('.test-title').text(appName + ' - ' + testName);
-            this.element.find('a').attr('href', batchUrl);
+            resultsWrapper.find('.test-title').text(appName + ' - ' + testName);
+            resultsWrapper.find('a').attr('href', batchUrl);
 
             if (isSaved) {
-                this.element.find('.test-status').text(_t('__applitools_test_new'));
+                resultsWrapper.find('.test-status').text(_t('__applitools_test_new'));
                 this.element.addClass("passed new");
             } else if (isPassed) {
-                this.element.find('.test-status').text(_t('__applitools_test_passed'));
+                resultsWrapper.find('.test-status').text(_t('__applitools_test_passed'));
                 this.element.addClass("passed");
             } else if (isAborted) {
-                this.element.find('.test-status').text(_t('__applitools_test_aborted'));
+                resultsWrapper.find('.test-status').text(_t('__applitools_test_aborted'));
                 this.element.addClass("aborted");
             } else {
-                this.element.find('.test-status').text(_t('__applitools_test_failed'));
+                resultsWrapper.find('.test-status').text(_t('__applitools_test_failed'));
                 this.element.addClass("failed");
             }
 
@@ -201,10 +196,6 @@ applitools.interface = {
         },
         hide: function () {
             this.element.hide();
-
-            this.element.find('.test-status').empty();
-            this.element.find('.test-title').empty();
-            this.element.find('a').attr('href', '#');
             this.element.removeClass("passed new failed aborted");
         }
     },
@@ -249,8 +240,7 @@ applitools.interface = {
             builder.stepdisplay.update();
         }
 
-        applitools.interface.applitoolsRecordPanel.hide();
-        applitools.interface.applitoolsResultsPanel.show(data.isPassed, data.isSaved, data.isAborted, data.appUrls.session);
+        applitools.interface.applitoolsPanel.showResultsPanel(data.isPassed, data.isSaved, data.isAborted, data.appUrls.session);
 
         function collectStepsIds() {
             var recordedSteps = jQuery('#steps').find('.b-step').get();

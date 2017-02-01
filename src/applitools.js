@@ -215,7 +215,7 @@ var applitools = {
             builder.record.verifyExploring = true;
             builder.record.stop();
             jQuery('#record-panel').show();
-            applitools.interface.applitoolsRecordPanel.show();
+            applitools.interface.applitoolsPanel.showRecordPanel();
             bridge.focusRecordingTab();
             applitools.interface.notificationBox.show(_t('__applitools_check_element_notification_message'));
             builder.record.verifyExplorer = new builder.VerifyExplorer(
@@ -246,7 +246,7 @@ var applitools = {
             builder.record.verifyExploring = true;
             builder.record.stop();
             jQuery('#record-panel').show();
-            applitools.interface.applitoolsRecordPanel.show();
+            applitools.interface.applitoolsPanel.showRecordPanel();
             bridge.focusRecordingTab();
             applitools.interface.notificationBox.show(_t('__applitools_check_region_notification_message'));
             builder.record.verifyExplorer = new applitools.SelectExplorer(

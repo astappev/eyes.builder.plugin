@@ -40,7 +40,6 @@ builder.record.startRecording = function(urlText, seleniumVersion, deleteCookies
                 builder.suite.addScript(new builder.Script(seleniumVersion));
                 builder.getScript().saveRequired = true;
                 var viewportSize = applitools.getRecWinViewportSize();
-                builder.getScript().addStep(new builder.Step(builder.selenium2.stepTypes.setWindowSize, viewportSize.width.toString(), viewportSize.height.toString()));
                 builder.getScript().addStep(new builder.Step(builder.selenium2.stepTypes.setViewportSize, viewportSize.width.toString(), viewportSize.height.toString()));
                 builder.getScript().addStep(new builder.Step(builder.selenium2.stepTypes.get, url.href()));
                 builder.stepdisplay.update();
@@ -55,8 +54,6 @@ builder.record.startRecording = function(urlText, seleniumVersion, deleteCookies
 
     // Close session if opened
     applitools.forceCloseSession();
-    // Hide panel with results of previous tests ()if opened
-    applitools.interface.applitoolsResultsPanel.hide();
 };
 
 // Override start recording method
@@ -64,8 +61,7 @@ builder.record.continueRecording = (function() {
     var cached_function = builder.record.continueRecording;
     return function() {
         console.log("builder.record.continueRecording()");
-        applitools.interface.applitoolsResultsPanel.hide();
-        applitools.interface.applitoolsRecordPanel.show();
+        applitools.interface.applitoolsPanel.showRecordPanel();
         var result = cached_function.apply(this, arguments);
         return result;
     };
@@ -76,7 +72,7 @@ builder.record.stop = (function() {
     var cached_function = builder.record.stop;
     return function() {
         console.log("builder.record.stop()");
-        applitools.interface.applitoolsRecordPanel.hide(true);
+        applitools.interface.applitoolsPanel.showRecordPanel(true);
         var result = cached_function.apply(this, arguments);
         return result;
     };
@@ -87,7 +83,7 @@ builder.record.verifyExplore = function() {
     builder.record.verifyExploring = true;
     builder.record.stop();
     jQuery('#record-panel').show();
-    applitools.interface.applitoolsRecordPanel.show();
+    applitools.interface.applitoolsPanel.showRecordPanel();
     window.sebuilder.focusRecordingTab();
     builder.record.verifyExplorer = new builder.VerifyExplorer(
         window.sebuilder.getRecordingWindow(),
@@ -138,7 +134,7 @@ builder.gui.switchView = (function() {
         console.log("builder.gui.switchView()");
         var result = cached_function.apply(this, arguments);
         if (arguments[0] == builder.views.script) {
-            applitools.interface.applitoolsRecordPanel.show(true);
+            applitools.interface.applitoolsPanel.showRecordPanel(true);
         }
         return result;
     };
@@ -150,8 +146,7 @@ builder.views.script.onStartRCPlayback = (function() {
     return function() {
         console.log("builder.views.script.onStartRCPlayback()");
         applitools.setUserAgent(null);
-        applitools.interface.applitoolsRecordPanel.show(true);
-        applitools.interface.applitoolsResultsPanel.hide();
+        applitools.interface.applitoolsPanel.showRecordPanel(true);
         var result = cached_function.apply(this, arguments);
         return result;
     };

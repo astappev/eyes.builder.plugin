@@ -56,7 +56,7 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
 }
 
 .applitools-settings-dialog label,
-.applitools-record-panel label {
+.applitools-panel label {
     color: #4f4f4f;
     font-weight: bold;
     width: 6rem;
@@ -65,14 +65,14 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
 }
 
 .applitools-settings-dialog .input-wrapper,
-.applitools-record-panel .input-wrapper {
+.applitools-panel .input-wrapper {
     overflow: hidden;
     display: block;
     padding-left: 1rem;
 }
 
 .applitools-settings-dialog input,
-.applitools-record-panel input {
+.applitools-panel input {
     border: 1px solid #cdcdcd;
     border-radius: 1px;
     background-color: #fff;
@@ -107,7 +107,7 @@ a[name="eyes.checkWindow"] + span > span .b-param-type {
 .applitools-panel {
     /*border-top: 1px solid #bfbcbc;*/
     margin-top: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     font-family: 'Lato', sans-serif;
     font-size: 1.125rem;
 }
@@ -149,28 +149,20 @@ a.applitools-button:hover {
     color: #00c5b4;
 }
 
-.applitools-results-panel {
-    margin-bottom: 0.75rem;
-}
-
-.applitools-results-panel > p:last-child {
-    margin-bottom: 0;
-}
-
-.applitools-results-panel .test-status-wrapper {
+.applitools-panel .test-status-wrapper {
     font-weight: bold;
     font-size: 1.3rem;
     color: #494949;
 }
 
-.applitools-results-panel.passed .test-status {
+.applitools-panel.passed .test-status {
     color: #22A398;
 }
 
-.applitools-results-panel.failed .test-status {
+.applitools-panel.failed .test-status {
     color: #b22415;
 }
 
-.applitools-results-panel.aborted .test-status {
+.applitools-panel.aborted .test-status {
     color: #C8720D;
 }
