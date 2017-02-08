@@ -351,8 +351,7 @@ applitools.playbackUtils.takeScreenshot = function(r) {
     return applitools.promiseFactory.makePromise(function (resolve, reject) {
         applitools.playbackUtils.sleep(applitools.WAIT_BEFORE_SCREENSHOT).then(function () {
             builder.selenium2.rcPlayback.send(r, "GET", "/screenshot", "", function (r, response) {
-                var imageBuffer = new window.Buffer(response.value, 'base64');
-                var mutableImage = new window.EyesUtils.MutableImage(imageBuffer, applitools.promiseFactory);
+                var mutableImage = new window.EyesImages.MutableImage(response.value, applitools.promiseFactory);
                 resolve(mutableImage);
             }, function (r, response) {
                 reject(response);
@@ -407,7 +406,7 @@ applitools.playbackUtils.getScreenshot = function(r) {
                     height: Math.max(imageObject.height - 50, 10)
                 };
 
-                var screenshotParts = window.EyesUtils.GeometryUtils.getSubRegions({
+                var screenshotParts = window.EyesImages.GeometryUtils.getSubRegions({
                     left: 0, top: 0, width: entirePageSize.width,
                     height: entirePageSize.height
                 }, screenshotPartSize, false);
@@ -455,8 +454,8 @@ applitools.playbackUtils.getScreenshot = function(r) {
                 });
 
                 return promise.then(function () {
-                    return window.EyesUtils.ImageUtils.stitchImage(entirePageSize, parts, applitools.promiseFactory).then(function (stitchedBuffer) {
-                        screenshot = new window.EyesUtils.MutableImage(stitchedBuffer, applitools.promiseFactory);
+                    return window.EyesImages.ImageUtils.stitchImage(entirePageSize, parts, applitools.promiseFactory).then(function (stitchedBuffer) {
+                        screenshot = new window.EyesImages.MutableImage(stitchedBuffer, applitools.promiseFactory);
                         resolve2();
                     });
                 });

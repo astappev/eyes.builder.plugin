@@ -257,9 +257,12 @@ applitools.interface = {
             var i = 0, eyesStepsIDs = collectStepsIds();
             for (var key in data.stepsInfo) {
                 if (data.stepsInfo.hasOwnProperty(key)) {
+                    var stepInfo = data.stepsInfo[key];
                     var step = script.getStepWithID(eyesStepsIDs[i++]);
                     if (step) {
-                        step.outcome = data.stepsInfo[key].isDifferent ? builder.stepdisplay.state.FAILED : builder.stepdisplay.state.SUCCEEDED;
+                        step.outcome = stepInfo.isDifferent ?
+                            builder.stepdisplay.state.FAILED :
+                            builder.stepdisplay.state.SUCCEEDED;
                     }
                 }
             }

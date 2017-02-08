@@ -70,10 +70,12 @@ var applitools = {
         builder.selenium2.categories.push([_t('__applitools'), items]);
         builder.selenium2.__stepNotes["setViewportSize"] = 'sel2_must_playback_in_foreground';
 
-        this.promiseFactory = new window.EyesUtils.PromiseFactory(function (asyncAction) {
-            return new window.RSVP.Promise(asyncAction);
+        this.promiseFactory = new window.EyesImages.PromiseFactory(function (asyncAction) {
+            var deferred = jQuery.Deferred();
+            asyncAction(deferred.resolve, deferred.reject);
+            return deferred;
         }, function () {
-            return window.RSVP.defer();
+            return jQuery.Deferred();
         });
     },
 
@@ -303,7 +305,7 @@ var applitools = {
             }
 
             if (!that.eyes) {
-                that.eyes = new window.EyesImages.Eyes(that.getServerUrl());
+                that.eyes = new window.EyesImages.Eyes(that.getServerUrl(), false, that.promiseFactory);
                 that.eyes.setApiKey(apiKey);
                 that.eyes.setInferredEnvironment("useragent:" + that.getUserAgent(true));
                 var imageMatch = new window.EyesImages.ImageMatchSettings(that.getMatchLevel(true));
