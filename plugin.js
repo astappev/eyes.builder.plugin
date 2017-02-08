@@ -122,6 +122,7 @@ builder.selenium2.io.parseScript = (function() {
         if (result && result.data) {
             applitools.setAppName(result.data.appName);
             applitools.setTestName(result.data.testName);
+            applitools.setMatchLevel(result.data.matchLevel);
             applitools.interface.applitoolsPanel.forceInit();
         }
         return result;
@@ -160,6 +161,7 @@ builder.dialogs.exportscript.save = (function() {
         console.log("builder.dialogs.exportscript.save()");
         applitools.saveVariableToCurrentScript('appName', applitools.getAppName(true));
         applitools.saveVariableToCurrentScript('testName', applitools.getTestName(true));
+        applitools.saveVariableToCurrentScript('matchLevel', applitools.getMatchLevel(true));
         var result = cached_function.apply(this, arguments);
         return result;
     };
@@ -171,6 +173,7 @@ builder.dialogs.exportscript.saveAs = (function() {
         console.log("builder.dialogs.exportscript.saveAs()");
         applitools.saveVariableToCurrentScript('appName', applitools.getAppName(true));
         applitools.saveVariableToCurrentScript('testName', applitools.getTestName(true));
+        applitools.saveVariableToCurrentScript('matchLevel', applitools.getMatchLevel(true));
         var result = cached_function.apply(this, arguments);
         return result;
     };
