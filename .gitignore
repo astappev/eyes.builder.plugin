@@ -11,3 +11,5 @@ logs
 
 # Compiled/intermediate files
 target/
+
+lib/eyes-browser.js
