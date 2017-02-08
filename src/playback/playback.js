@@ -25,7 +25,7 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
             if (i++ == 1) updateStepProgress(r, 40);
             else if (i == 4) updateStepProgress(r, 85);
         });
-        return applitools.checkImage(imageProvider, title);
+        return applitools.checkImage(r, imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -50,7 +50,7 @@ builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
             if (i++ == 1) updateStepProgress(r, 40);
             else if (i == 4) updateStepProgress(r, 85);
         });
-        return applitools.checkRegion(elRegion, imageProvider, title);
+        return applitools.checkRegion(r, elRegion, imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -76,7 +76,7 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
             if (i++ == 1) updateStepProgress(r, 40);
             else if (i == 4) updateStepProgress(r, 85);
         });
-        return applitools.checkRegion(region, imageProvider, title);
+        return applitools.checkRegion(r, region, imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -94,10 +94,11 @@ function beforeAll(r) {
 
     updateStepProgress(r, 1);
 
-    if (!applitools.getUserAgent()) {
+    // Save userAgent locally, in current record
+    if (!r.vars.userAgent) {
         promise.then(function () {
-            applitools.playbackUtils.getUserAgent(r).then(function (newUserAgent) {
-                applitools.setUserAgent(newUserAgent);
+            applitools.playbackUtils.getUserAgent(r).then(function (value) {
+                r.vars.userAgent = value;
             });
         });
     }

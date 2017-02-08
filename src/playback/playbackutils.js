@@ -35,6 +35,19 @@ var JS_GET_CONTENT_ENTIRE_SIZE =
     "var totalHeight = Math.max(maxDocElementHeight, maxBodyHeight); " +
     "return [totalWidth, totalHeight];";
 
+applitools.playbackUtils.getViewportSizeFromRecord = function(r) {
+    for (var i = 0, len = r.script.steps.length; i < len; ++i) {
+        if (r.script.steps[i].type.name == "setViewportSize") {
+            return {
+                width: parseInt(r.script.steps[i].width, 10),
+                height: parseInt(r.script.steps[i].height, 10)
+            }
+        }
+    }
+
+    return null;
+};
+
 applitools.playbackUtils.sleep = function(ms) {
     return applitools.promiseFactory.makePromise(function (resolve) {
         window.setTimeout(function () {

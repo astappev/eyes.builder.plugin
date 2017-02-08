@@ -1,10 +1,10 @@
 var applitools = {
     apiKey: null,
     serverUrl: null,
+
     appName: null,
     testName: null,
     matchLevel: null,
-    userAgent: null,
 
     WAIT_BEFORE_SCREENSHOT: 100, // ms
 
@@ -170,18 +170,6 @@ var applitools = {
         this.testName = newTestName;
     },
 
-    getUserAgent: function (useDefaultIfNotSpecified) {
-        if (!this.userAgent && useDefaultIfNotSpecified) {
-            return window.navigator.userAgent;
-        }
-
-        return this.userAgent;
-    },
-
-    setUserAgent: function (newUserAgent) {
-        this.userAgent = newUserAgent;
-    },
-
     getAvailableMatchLevels: function () {
         return window.EyesImages.MatchLevel;
     },
@@ -295,7 +283,7 @@ var applitools = {
         }
     },
 
-    getSession: function () {
+    getSession: function (r) {
         var that = this;
         return that.promiseFactory.makePromise(function (resolve, reject) {
             var apiKey = that.getApiKey();
@@ -307,7 +295,7 @@ var applitools = {
             if (!that.eyes) {
                 that.eyes = new window.EyesImages.Eyes(that.getServerUrl(), false, that.promiseFactory);
                 that.eyes.setApiKey(apiKey);
-                that.eyes.setInferredEnvironment("useragent:" + that.getUserAgent(true));
+                that.eyes.setInferredEnvironment("useragent:" + r.vars.userAgent);
                 var imageMatch = new window.EyesImages.ImageMatchSettings(that.getMatchLevel(true));
                 that.eyes.setDefaultMatchSettings(imageMatch);
             }
@@ -315,7 +303,12 @@ var applitools = {
             if (!that.eyes.isOpen()) {
                 var appName = that.getAppName(true);
                 var testName = that.getTestName(true);
-                var viewportSize = that.getRecWinViewportSize();
+                var viewportSize = applitools.playbackUtils.getViewportSizeFromRecord(r);
+                if (r == null) {
+                    console.log("Error getting viewportSize from steps, using from recording window.");
+                    viewportSize = that.getRecWinViewportSize();
+                }
+
                 console.log("Opening new session...", appName, testName);
                 that.eyes.open(appName, testName, viewportSize).then(function () {
                     console.log("Eyes: new session opened.");
@@ -329,10 +322,10 @@ var applitools = {
         });
     },
 
-    checkImage: function (imageProvider, title) {
+    checkImage: function (r, imageProvider, title) {
         var that = this;
         return that.promiseFactory.makePromise(function (resolve, reject) {
-            return that.getSession().then(function () {
+            return that.getSession(r).then(function () {
                 console.log("Eyes: checking image...");
                 return that.eyes.checkImage(imageProvider, title).then(function (result) {
                     console.log("Eyes: check image - done.");
@@ -348,10 +341,10 @@ var applitools = {
         });
     },
 
-    checkRegion: function (region, imageProvider, title) {
+    checkRegion: function (r, region, imageProvider, title) {
         var that = this;
         return that.promiseFactory.makePromise(function (resolve, reject) {
-            return that.getSession().then(function () {
+            return that.getSession(r).then(function () {
                 console.log("Eyes: checking region...");
                 return that.eyes.checkRegion(region, imageProvider, title).then(function (result) {
                     console.log("Eyes: check region - done.");

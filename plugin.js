@@ -147,7 +147,6 @@ builder.views.script.onStartRCPlayback = (function() {
     var cached_function = builder.views.script.onStartRCPlayback;
     return function() {
         console.log("builder.views.script.onStartRCPlayback()");
-        applitools.setUserAgent(null);
         applitools.interface.applitoolsPanel.showRecordPanel(true);
         var result = cached_function.apply(this, arguments);
         return result;
