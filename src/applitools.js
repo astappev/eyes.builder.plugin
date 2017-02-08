@@ -6,6 +6,9 @@ var applitools = {
     testName: null,
     matchLevel: null,
 
+    DEFAULT_DEVICE_PIXEL_RATIO: 1,
+    MIN_SCREENSHOT_PART_HEIGHT: 10,
+    MAX_SCROLLBAR_SIZE: 50,
     WAIT_BEFORE_SCREENSHOT: 100, // ms
 
     eyes: null,

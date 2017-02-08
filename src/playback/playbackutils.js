@@ -5,6 +5,8 @@ var JS_GET_DOCUMENT_READY_STATUS = "return document.readyState";
 
 var JS_GET_USER_AGENT = "return navigator.userAgent";
 
+var JS_GET_DEVICE_PIXEL_RATIO = "return window.devicePixelRatio";
+
 var JS_GET_VIEWPORT_SIZE =
     "var height = undefined; " +
     "var width = undefined; " +
@@ -334,6 +336,12 @@ applitools.playbackUtils.getUserAgent = function(r) {
     return applitools.playbackUtils.executeScript(r, JS_GET_USER_AGENT);
 };
 
+applitools.playbackUtils.getDevicePixelRatio = function(r) {
+    return applitools.playbackUtils.executeScript(r, JS_GET_DEVICE_PIXEL_RATIO).then(function (result) {
+        return parseFloat(result);
+    });
+};
+
 applitools.playbackUtils.waitForDocumentReady = function(r, retries) {
     return applitools.promiseFactory.makePromise(function (resolve, reject) {
         applitools.playbackUtils.getDocumentReadyStatus(r).then(function (value) {
@@ -395,88 +403,136 @@ applitools.playbackUtils.getRegionByElement = function(r, locator) {
     });
 };
 
+applitools.playbackUtils.updateScalingParams = function(r) {
+    var propertyHandler = new window.EyesImages.SimplePropertyHandler();
+    var factory, enSize, vpSize, devicePixelRatio;
+    console.log("Trying to extract device pixel ratio...");
+    return applitools.playbackUtils.getDevicePixelRatio(r).then(function (ratio) {
+        devicePixelRatio = ratio;
+    }, function (err) {
+        console.log("Failed to extract device pixel ratio! Using default.", err);
+        devicePixelRatio = applitools.DEFAULT_DEVICE_PIXEL_RATIO;
+    }).then(function () {
+        console.log("Device pixel ratio: " + devicePixelRatio);
+        console.log("Setting scale provider...");
+        return applitools.playbackUtils.getEntirePageSize(r);
+    }).then(function (entireSize) {
+        enSize = entireSize;
+        return applitools.playbackUtils.getViewportSizeOrDisplaySize(r);
+    }).then(function (viewportSize) {
+        vpSize = viewportSize;
+        factory = new window.EyesImages.ContextBasedScaleProviderFactory(enSize, vpSize, devicePixelRatio, propertyHandler);
+    }, function (err) {
+        console.log("Failed to set ContextBasedScaleProvider.", err);
+        console.log("Using FixedScaleProvider instead...");
+        factory = new window.EyesImages.FixedScaleProviderFactory(1 / devicePixelRatio, propertyHandler);
+    }).then(function () {
+        console.log("Done!");
+        return factory;
+    });
+};
+
+applitools.playbackUtils.captureViewport = function(r, scaleProviderFactory) {
+    var parsedImage, imageSize, scaleProvider;
+    return applitools.playbackUtils.takeScreenshot(r).then(function (image) {
+        parsedImage = image;
+        return parsedImage.getSize();
+    }).then(function (imgSize) {
+        imageSize = imgSize;
+        scaleProvider = scaleProviderFactory.getScaleProvider(imageSize.width);
+
+        console.log(scaleProvider.getScaleRatio());
+        if (scaleProvider && scaleProvider.getScaleRatio() !== 1) {
+            return parsedImage.scaleImage(scaleProvider.getScaleRatio());
+        }
+    }).then(function () {
+        return parsedImage;
+    });
+};
+
 applitools.playbackUtils.getScreenshot = function(r) {
-    return applitools.promiseFactory.makePromise(function (resolve) {
-        var entirePageSize, originalPosition, screenshot;
-        return applitools.playbackUtils.getEntirePageSize(r).then(function (result) {
-            entirePageSize = result;
-            return applitools.playbackUtils.getScrollPosition(r);
-        }).then(function (result) {
-            originalPosition = result;
-            return applitools.playbackUtils.takeScreenshot(r);
-        }).then(function (image) {
-            screenshot = image;
-            return image.asObject();
-        }).then(function (imageObject) {
-            return applitools.promiseFactory.makePromise(function (resolve2) {
-                if (imageObject.width >= entirePageSize.width && imageObject.height >= entirePageSize.height) {
-                    resolve2();
-                    return;
-                }
+    var scaleProviderFactory, entirePageSize, originalPosition, screenshot;
+    return applitools.playbackUtils.updateScalingParams(r).then(function (result) {
+        scaleProviderFactory = result;
+        return applitools.playbackUtils.getEntirePageSize(r);
+    }).then(function (result) {
+        entirePageSize = result;
+        return applitools.playbackUtils.getScrollPosition(r);
+    }).then(function (result) {
+        originalPosition = result;
+        return applitools.playbackUtils.captureViewport(r, scaleProviderFactory);
+    }).then(function (image) {
+        screenshot = image;
+        return image.asObject();
+    }).then(function (imageObject) {
+        return applitools.promiseFactory.makePromise(function (resolve2) {
+            if (imageObject.width >= entirePageSize.width && imageObject.height >= entirePageSize.height) {
+                resolve2();
+                return;
+            }
 
-                var screenshotPartSize = {
-                    width: imageObject.width,
-                    height: Math.max(imageObject.height - 50, 10)
-                };
+            var screenshotPartSize = {
+                width: imageObject.width,
+                height: Math.max(imageObject.height - applitools.MAX_SCROLLBAR_SIZE, applitools.MIN_SCREENSHOT_PART_HEIGHT)
+            };
 
-                var screenshotParts = window.EyesImages.GeometryUtils.getSubRegions({
-                    left: 0, top: 0, width: entirePageSize.width,
-                    height: entirePageSize.height
-                }, screenshotPartSize, false);
+            var screenshotParts = window.EyesImages.GeometryUtils.getSubRegions({
+                left: 0, top: 0, width: entirePageSize.width,
+                height: entirePageSize.height
+            }, screenshotPartSize, false);
 
-                var parts = [];
-                var promise = applitools.promiseFactory.makePromise(function (resolve3) {
-                    resolve3();
-                });
+            var parts = [];
+            var promise = applitools.promiseFactory.makePromise(function (resolve3) {
+                resolve3();
+            });
 
-                screenshotParts.forEach(function (part) {
-                    promise = promise.then(function () {
-                        return applitools.promiseFactory.makePromise(function (resolve4) {
-                            if (part.left == 0 && part.top == 0) {
+            screenshotParts.forEach(function (part) {
+                promise = promise.then(function () {
+                    return applitools.promiseFactory.makePromise(function (resolve4) {
+                        if (part.left == 0 && part.top == 0) {
+                            parts.push({
+                                image: imageObject.imageBuffer,
+                                size: {width: imageObject.width, height: imageObject.height},
+                                position: {x: 0, y: 0}
+                            });
+
+                            resolve4();
+                            return;
+                        }
+
+                        var currentPosition;
+                        var partCoords = {x: part.left, y: part.top};
+                        return applitools.playbackUtils.setScrollPosition(r, partCoords).then(function () {
+                            return applitools.playbackUtils.getScrollPosition(r).then(function (position) {
+                                currentPosition = position;
+                            });
+                        }).then(function () {
+                            return applitools.playbackUtils.captureViewport(r, scaleProviderFactory);
+                        }).then(function (partImage) {
+                            return partImage.asObject().then(function (newImageObjects) {
                                 parts.push({
-                                    image: imageObject.imageBuffer,
-                                    size: {width: imageObject.width, height: imageObject.height},
-                                    position: {x: 0, y: 0}
+                                    image: newImageObjects.imageBuffer,
+                                    size: {width: newImageObjects.width, height: newImageObjects.height},
+                                    position: {x: currentPosition.x, y: currentPosition.y}
                                 });
 
                                 resolve4();
-                                return;
-                            }
-
-                            var currentPosition;
-                            var partCoords = {x: part.left, y: part.top};
-                            return applitools.playbackUtils.setScrollPosition(r, partCoords).then(function () {
-                                return applitools.playbackUtils.getScrollPosition(r).then(function (position) {
-                                    currentPosition = position;
-                                });
-                            }).then(function () {
-                                return applitools.playbackUtils.takeScreenshot(r);
-                            }).then(function (partImage) {
-                                return partImage.asObject().then(function (newImageObjects) {
-                                    parts.push({
-                                        image: newImageObjects.imageBuffer,
-                                        size: {width: newImageObjects.width, height: newImageObjects.height},
-                                        position: {x: currentPosition.x, y: currentPosition.y}
-                                    });
-
-                                    resolve4();
-                                });
                             });
                         });
                     });
                 });
+            });
 
-                return promise.then(function () {
-                    return window.EyesImages.ImageUtils.stitchImage(entirePageSize, parts, applitools.promiseFactory).then(function (stitchedBuffer) {
-                        screenshot = new window.EyesImages.MutableImage(stitchedBuffer, applitools.promiseFactory);
-                        resolve2();
-                    });
+            return promise.then(function () {
+                return window.EyesImages.ImageUtils.stitchImage(entirePageSize, parts, applitools.promiseFactory).then(function (stitchedBuffer) {
+                    screenshot = new window.EyesImages.MutableImage(stitchedBuffer, applitools.promiseFactory);
+                    resolve2();
                 });
             });
-        }).then(function () {
-            return applitools.playbackUtils.setScrollPosition(r, originalPosition);
-        }).then(function () {
-            resolve(screenshot);
         });
+    }).then(function () {
+        return applitools.playbackUtils.setScrollPosition(r, originalPosition);
+    }).then(function () {
+        return screenshot;
     });
 };
