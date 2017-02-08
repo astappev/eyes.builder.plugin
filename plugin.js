@@ -122,6 +122,7 @@ builder.selenium2.io.parseScript = (function() {
         if (result && result.data) {
             applitools.setAppName(result.data.appName);
             applitools.setTestName(result.data.testName);
+            applitools.interface.applitoolsPanel.forceInit();
         }
         return result;
     };

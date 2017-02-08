@@ -221,6 +221,9 @@ applitools.interface = {
         hide: function () {
             this.element.hide();
             this.element.removeClass("passed new failed aborted");
+        },
+        forceInit: function () {
+            this.requireInit = true;
         }
     },
 
