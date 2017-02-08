@@ -106,7 +106,7 @@ applitools.playbackUtils.getWindowSize = function(r) {
 };
 
 applitools.playbackUtils.setWindowSize = function(r, requiredSize, retries) {
-    return applitools.promiseFactory.makePromise(function (resolve, reject) {
+    return applitools.promiseFactory.makePromise(function (resolve) {
         console.info("Trying to set browser size to:", requiredSize);
 
         builder.selenium2.rcPlayback.send(r, "GET", "/window_handle", "", function(r, handle) {
@@ -119,25 +119,25 @@ applitools.playbackUtils.setWindowSize = function(r, requiredSize, retries) {
                 }).then(function (currentSize) {
                     console.info("Current browser size:", currentSize, retries);
                     if (currentSize.width === requiredSize.width && currentSize.height === requiredSize.height) {
-                        resolve();
+                        resolve(true);
                         return;
                     }
 
                     if (retries === 0) {
-                        reject("setWindowSize: retries is out");
+                        console.log("setWindowSize: retries is out");
+                        resolve(false);
                         return;
                     } else if (!retries) {
                         retries = 3;
                     }
 
-                    applitools.playbackUtils.setWindowSize(r, requiredSize, retries - 1).then(function () {
-                        resolve();
-                    }, function (err) {
-                        reject(err);
+                    applitools.playbackUtils.setWindowSize(r, requiredSize, retries - 1).then(function (val) {
+                        resolve(val);
                     });
                 });
             }, function (r, response) {
-                reject(response);
+                console.log(response);
+                resolve(false);
             });
         });
     });
