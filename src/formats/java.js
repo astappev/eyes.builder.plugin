@@ -6,8 +6,8 @@ builder.selenium2.io.addLangFormatter({
     "import java.util.Date;\n" +
     "import java.io.File;\n" +
     "import java.net.URISyntaxException;\n" +
-    "import com.applitools.eyes.Eyes;\n" +
-    "import com.applitools.eyes.RectangleSize;\n" +
+    "import com.applitools.eyes.*;\n" +
+    "import com.applitools.eyes.selenium.Eyes;\n" +
     "import org.openqa.selenium.support.ui.Select;\n" +
     "import org.openqa.selenium.interactions.Actions;\n" +
     "import org.openqa.selenium.firefox.FirefoxDriver;\n" +
@@ -17,16 +17,17 @@ builder.selenium2.io.addLangFormatter({
     "public class {scriptName} {\n" +
     "\tpublic static void main(String[] args) throws URISyntaxException, InterruptedException {\n" +
     "\t\tWebDriver driver = new FirefoxDriver();\n" +
-    "\t\t{initDriver}\n" +
     "\t\tdriver.manage().timeouts().implicitlyWait({timeoutSeconds}, TimeUnit.SECONDS);\n" +
     "\t\tEyes eyes = new Eyes();\n" +
-    "\t\teyes.setApiKey('" + applitools.getApiKey(true) + "');\n" +
+    "\t\teyes.setApiKey(\"{applitoolsApiKey}\");\n" +
+    "\t\teyes.setDefaultMatchSettings(new ImageMatchSettings({applitoolsMatchLevel}, null));\n" +
     "\t\ttry {\n" +
-    "\t\t\tdriver = eyes.open(driver, '" + applitools.getAppName(true) + "', '" + applitools.getTestName(true) + "');\n\n",
+    "\t\t\tdriver = eyes.open(driver, \"{applitoolsAppName}\", \"{applitoolsTestName}\");\n\n",
+
     end: "\n" +
     "\t\t\teyes.close();\n" +
     "\t\t} finally {\n" +
-    "\t\t\teyes.abortIfNotClosed()\n" +
+    "\t\t\teyes.abortIfNotClosed();\n" +
     "\t\t\tdriver.quit();\n" +
     "\t\t}\n" +
     "\t}\n" +
@@ -40,6 +41,20 @@ builder.selenium2.io.addLangFormatter({
     "\t\t}\n" +
     "\t}\n" +
     "}\n",
+
+    applitoolsApiKey: function () {
+        return applitools.getApiKey(true);
+    },
+    applitoolsAppName: function () {
+        return applitools.getAppName(true);
+    },
+    applitoolsTestName: function () {
+        return applitools.getTestName(true);
+    },
+    applitoolsMatchLevel: function () {
+        return "MatchLevel." + applitools.getMatchLevel(true).toUpperCase();
+    },
+
     lineForType: {
         //--- applitools
         "eyes.checkWindow":
@@ -49,7 +64,7 @@ builder.selenium2.io.addLangFormatter({
         "eyes.checkRegion":
             "\t\t\teyes.checkRegion(new Region({left}, {top}, {width}, {height}), -1, {title}); \n",
         "setViewportSize":
-            "\t\t\teyes.setViewportSize(new RectangleSize({width}, {height}));\n",
+            "\t\t\tEyes.setViewportSize(driver, new RectangleSize({width}, {height}));\n",
         //--- navigation
         "get":
             "\t\t\tdriver.get({url});\n",
@@ -304,7 +319,9 @@ builder.selenium2.io.addLangFormatter({
         };
 
         // Don't escape numerical values.
-        if (stepType == builder.selenium2.stepTypes.pause || stepType == builder.selenium2.stepTypes.setWindowSize) {
+        if (stepType == builder.selenium2.stepTypes.pause ||
+            stepType == builder.selenium2.stepTypes.setWindowSize ||
+            pName == "left" || pName == "top" || pName == "width" || pName == "height") {
             esc = function (v) {
                 return v;
             }

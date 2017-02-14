@@ -15,19 +15,38 @@ builder.selenium2.io.addLangFormatter({
     "\t.withCapabilities(webdriver.Capabilities.firefox())\n" +
     "\t.build();\n" +
     "\n" +
-    "var Eyes = require('eyes.selenium').Eyes;\n"+
+    "var eyesSelenium = require('eyes.selenium');\n"+
+    "var Eyes = eyesSelenium.Eyes,\n"+
+    "\tImageMatchSettings = eyesSelenium.ImageMatchSettings,\n"+
+    "\tMatchLevel = eyesSelenium.MatchLevel;\n"+
     "var eyes = new Eyes();\n"+
-    "eyes.setApiKey('" + applitools.getApiKey(true) + "');\n"+
+    "eyes.setApiKey('{applitoolsApiKey}');\n"+
+    "eyes.setDefaultMatchSettings(new ImageMatchSettings({applitoolsMatchLevel}));\n"+
     "\n" +
     "driver.controlFlow().on('uncaughtException', function(err) {\n" +
     "\tconsole.log('There was an uncaught exception: ' + err);\n" +
     "});\n" +
     "\n" +
-    "eyes.open(driver, '" + applitools.getAppName(true) + "', '" + applitools.getTestName(true) + "').then(function(driver) {\n",
+    "eyes.open(driver, '{applitoolsAppName}', '{applitoolsTestName}').then(function(driver) {\n",
+
     end:
     "\teyes.close();\n" +
     "\tdriver.quit();\n" +
     "});",
+
+    applitoolsApiKey: function () {
+        return applitools.getApiKey(true);
+    },
+    applitoolsAppName: function () {
+        return applitools.getAppName(true);
+    },
+    applitoolsTestName: function () {
+        return applitools.getTestName(true);
+    },
+    applitoolsMatchLevel: function () {
+        return "MatchLevel." + applitools.getMatchLevel(true);
+    },
+
     lineForType: {
         //--- applitools
         "eyes.checkWindow":
@@ -375,7 +394,7 @@ builder.selenium2.io.addLangFormatter({
         var esc = function(v) { return "\"" + v.replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\""; };
 
         // Don't escape numerical values.
-        if (stepType == builder.selenium2.stepTypes.pause) {
+        if (stepType == builder.selenium2.stepTypes.pause || pName == "left" || pName == "top" || pName == "width" || pName == "height") {
             esc = function(v) { return v; };
         }
 
