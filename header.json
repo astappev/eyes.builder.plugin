@@ -17,6 +17,7 @@
     "src/views/interface.js",
     "src/views/selectexplorer.js",
     "src/playback/playbackutils.js",
+    "src/playback/eyesplayback.js",
     "src/playback/playback.js",
     "src/formats/java.js",
     "src/formats/node-selenium.js",

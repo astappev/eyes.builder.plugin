@@ -18,14 +18,13 @@ builder.selenium2.rcPlayback.types['eyes.checkWindow'] = function (r) {
 
     beforeAll(r).then(function () {
         var i = 0; // just for updating progress bar
-        var imageProvider = createImageProvider(r, function () {
+        return applitools.checkImage(r, title, null, function () {
             if (i++ == 0) updateStepProgress(r, 10);
             else if (i == 3) updateStepProgress(r, 55);
         }, function () {
             if (i++ == 1) updateStepProgress(r, 40);
             else if (i == 4) updateStepProgress(r, 85);
         });
-        return applitools.checkImage(r, imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -43,14 +42,13 @@ builder.selenium2.rcPlayback.types['eyes.checkElement'] = function (r) {
     }).then(function (region) {
         elRegion = region;
         var i = 0; // just for updating progress bar
-        var imageProvider = createImageProvider(r, function () {
+        return applitools.checkImage(r, title, elRegion, function () {
             if (i++ == 0) updateStepProgress(r, 10);
             else if (i == 3) updateStepProgress(r, 55);
         }, function () {
             if (i++ == 1) updateStepProgress(r, 40);
             else if (i == 4) updateStepProgress(r, 85);
         });
-        return applitools.checkRegion(r, elRegion, imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -69,14 +67,13 @@ builder.selenium2.rcPlayback.types['eyes.checkRegion'] = function (r) {
 
     beforeAll(r).then(function () {
         var i = 0; // just for updating progress bar
-        var imageProvider = createImageProvider(r, function () {
+        return applitools.checkImage(r, title, region, function () {
             if (i++ == 0) updateStepProgress(r, 10);
             else if (i == 3) updateStepProgress(r, 55);
         }, function () {
             if (i++ == 1) updateStepProgress(r, 40);
             else if (i == 4) updateStepProgress(r, 85);
         });
-        return applitools.checkRegion(r, region, imageProvider, title);
     }).then(function (result) {
         builder.selenium2.rcPlayback.recordResult(r, {success: !!result.asExpected});
     }, function (err) {
@@ -114,16 +111,4 @@ function beforeAll(r) {
 
 function updateStepProgress(r, percentage) {
     r.stepStateCallback(r, r.script, r.currentStep, r.currentStepIndex, builder.stepdisplay.state.NO_CHANGE, null, null, percentage);
-}
-
-function createImageProvider(r, beforeCallback, afterCallback) {
-    return {
-        getScreenshot: function () {
-            beforeCallback();
-            return applitools.playbackUtils.getScreenshot(r).then(function (screenshot) {
-                afterCallback();
-                return screenshot;
-            });
-        }
-    }
 }

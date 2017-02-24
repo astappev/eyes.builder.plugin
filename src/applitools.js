@@ -296,7 +296,8 @@ var applitools = {
             }
 
             if (!that.eyes) {
-                that.eyes = new window.EyesImages.Eyes(that.getServerUrl(), false, that.promiseFactory);
+                debugger;
+                that.eyes = new that.EyesPlayback(r, that.getServerUrl(), that.promiseFactory);
                 that.eyes.setApiKey(apiKey);
                 that.eyes.setInferredEnvironment("useragent:" + r.vars.userAgent);
                 var imageMatch = new window.EyesImages.ImageMatchSettings(that.getMatchLevel(true));
@@ -306,14 +307,9 @@ var applitools = {
             if (!that.eyes.isOpen()) {
                 var appName = that.getAppName(true);
                 var testName = that.getTestName(true);
-                var viewportSize = applitools.playbackUtils.getViewportSizeFromRecord(r);
-                if (r == null) {
-                    console.log("Error getting viewportSize from steps, using from recording window.");
-                    viewportSize = that.getRecWinViewportSize();
-                }
 
                 console.log("Opening new session...", appName, testName);
-                that.eyes.open(appName, testName, viewportSize).then(function () {
+                that.eyes.open(appName, testName).then(function () {
                     console.log("Eyes: new session opened.");
                     resolve();
                 }, function (err) {
@@ -325,35 +321,17 @@ var applitools = {
         });
     },
 
-    checkImage: function (r, imageProvider, title) {
+    checkImage: function (r, title, region, beforeCallback, afterCallback) {
         var that = this;
         return that.promiseFactory.makePromise(function (resolve, reject) {
             return that.getSession(r).then(function () {
                 console.log("Eyes: checking image...");
-                return that.eyes.checkImage(imageProvider, title).then(function (result) {
+                that.eyes.setCallbacks(beforeCallback, afterCallback);
+                return that.eyes.checkImage(title, region).then(function (result) {
                     console.log("Eyes: check image - done.");
                     resolve(result);
                 }, function (err) {
                     console.error("Eyes: error during checkImage:", err);
-                    reject(err);
-                });
-            }, function (err) {
-                console.error("Eyes: can't get session:", err);
-                reject(err);
-            });
-        });
-    },
-
-    checkRegion: function (r, region, imageProvider, title) {
-        var that = this;
-        return that.promiseFactory.makePromise(function (resolve, reject) {
-            return that.getSession(r).then(function () {
-                console.log("Eyes: checking region...");
-                return that.eyes.checkRegion(region, imageProvider, title).then(function (result) {
-                    console.log("Eyes: check region - done.");
-                    resolve(result);
-                }, function (err) {
-                    console.error("Eyes: error during checkRegion:", err);
                     reject(err);
                 });
             }, function (err) {
