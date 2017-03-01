@@ -223,27 +223,32 @@ applitools.playbackUtils.setViewportSize = function(r, requiredSize) {
                         return applitools.playbackUtils.getWindowSize(r).then(function (browserSize) {
                             var MAX_DIFF = 3;
                             var widthDiff = actualViewportSize.width - requiredSize.width;
-                            var widthStep = widthDiff != 0 ? (widthDiff / (-widthDiff)) : 1; // -1 for smaller size, 1 for larger
+                            var widthStep = widthDiff > 0 ? -1 : 1; // -1 for smaller size, 1 for larger
                             var heightDiff = actualViewportSize.height - requiredSize.height;
-                            var heightStep = heightDiff != 0 ? (heightDiff / (-heightDiff)) : 1;
+                            var heightStep = heightDiff > 0 ? -1 : 1;
 
                             var currWidthChange = 0;
                             var currHeightChange = 0;
                             // We try the zoom workaround only if size difference is reasonable.
                             if (Math.abs(widthDiff) <= MAX_DIFF && Math.abs(heightDiff) <= MAX_DIFF) {
                                 console.info("Trying workaround for zoom...");
-                                return _setWindowSize(r, requiredSize, actualViewportSize, browserSize, widthDiff, widthStep, heightDiff, heightStep, currWidthChange, currHeightChange).then(function () {
+                                var retriesLeft = Math.abs((widthDiff == 0 ? 1 : widthDiff) * (heightDiff == 0 ? 1 : heightDiff)) * 2;
+                                var lastRequiredBrowserSize = null;
+                                return _setWindowSize(r, requiredSize, actualViewportSize, browserSize,
+                                    widthDiff, widthStep, heightDiff, heightStep, currWidthChange, currHeightChange,
+                                    retriesLeft, lastRequiredBrowserSize).then(function () {
                                     resolve();
                                 }, function () {
-                                    console.info("Zoom workaround failed.");
-                                    reject();
+                                    reject("Zoom workaround failed.");
                                 });
                             }
+
+                            reject("Failed to set viewport size!");
                         });
                     });
                 });
-            }).catch(function () {
-                reject("Failed to set viewport size!");
+            }).catch(function (err) {
+                reject(err);
             });
         } catch (err) {
             reject(new Error(err));
@@ -251,8 +256,9 @@ applitools.playbackUtils.setViewportSize = function(r, requiredSize) {
     });
 };
 
-function _setWindowSize(r, requiredSize, actualViewportSize, browserSize, widthDiff, widthStep, heightDiff, heightStep, currWidthChange, currHeightChange) {
+function _setWindowSize(r, requiredSize, actualViewportSize, browserSize, widthDiff, widthStep, heightDiff, heightStep, currWidthChange, currHeightChange, retriesLeft, lastRequiredBrowserSize) {
     return applitools.promiseFactory.makePromise(function (resolve, reject) {
+        console.info("Retries left: " + retriesLeft);
         // We specifically use "<=" (and not "<"), so to give an extra resize attempt
         // in addition to reaching the diff, due to floating point issues.
         if (Math.abs(currWidthChange) <= Math.abs(widthDiff) && actualViewportSize.width != requiredSize.width) {
@@ -263,12 +269,21 @@ function _setWindowSize(r, requiredSize, actualViewportSize, browserSize, widthD
             currHeightChange += heightStep;
         }
 
-        var sizeToSet = {
+        var requiredBrowserSize = {
             width: browserSize.width + currWidthChange,
             height: browserSize.height + currHeightChange
         };
 
-        return applitools.playbackUtils.setWindowSize(r, sizeToSet).then(function () {
+        if (lastRequiredBrowserSize && requiredBrowserSize.width === lastRequiredBrowserSize.width && requiredBrowserSize.height === lastRequiredBrowserSize.height) {
+            console.info("Browser size is as required but viewport size does not match!");
+            console.info("Browser size: " + requiredBrowserSize + " , Viewport size: " + actualViewportSize);
+            console.info("Stopping viewport size attempts.");
+            resolve();
+            return;
+        }
+
+        return applitools.playbackUtils.setWindowSize(r, requiredBrowserSize).then(function () {
+            lastRequiredBrowserSize = requiredBrowserSize;
             return applitools.playbackUtils.getViewportSize(r);
         }).then(function (actualViewportSize) {
             console.info("Current viewport size:", actualViewportSize);
@@ -277,8 +292,8 @@ function _setWindowSize(r, requiredSize, actualViewportSize, browserSize, widthD
                 return;
             }
 
-            if (Math.abs(currWidthChange) <= Math.abs(widthDiff) || Math.abs(currHeightChange) <= Math.abs(heightDiff)) {
-                return _setWindowSize(r, requiredSize, actualViewportSize, browserSize, widthDiff, widthStep, heightDiff, heightStep, currWidthChange, currHeightChange).then(function () {
+            if ((Math.abs(currWidthChange) <= Math.abs(widthDiff) || Math.abs(currHeightChange) <= Math.abs(heightDiff)) && (--retriesLeft > 0)) {
+                return _setWindowSize(r, requiredSize, actualViewportSize, browserSize, widthDiff, widthStep, heightDiff, heightStep, currWidthChange, currHeightChange, retriesLeft, lastRequiredBrowserSize).then(function () {
                     resolve();
                 }, function () {
                     reject();
@@ -440,10 +455,10 @@ applitools.playbackUtils.captureViewport = function(r, scaleProviderFactory) {
     }).then(function (imgSize) {
         imageSize = imgSize;
         scaleProvider = scaleProviderFactory.getScaleProvider(imageSize.width);
-
-        console.log(scaleProvider.getScaleRatio());
         if (scaleProvider && scaleProvider.getScaleRatio() !== 1) {
-            return parsedImage.scaleImage(scaleProvider.getScaleRatio());
+            var scaleRatio = scaleProvider.getScaleRatio();
+            console.log("Using scale ratio: " + scaleRatio);
+            return parsedImage.scaleImage(scaleRatio);
         }
     }).then(function () {
         return parsedImage;

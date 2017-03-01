@@ -206,9 +206,33 @@ var applitools = {
 
     getRecWinViewportSize: function () {
         var recWindow = bridge.getRecordingWindow().window;
+        var recDocument = bridge.getRecordingWindow().document;
+        var height = undefined, width = undefined, body;
+        if (recWindow.innerHeight) {
+            height = recWindow.innerHeight;
+        } else if (recDocument.documentElement && recDocument.documentElement.clientHeight) {
+            height = recDocument.documentElement.clientHeight;
+        } else {
+            body = recDocument.getElementsByTagName('body')[0];
+            if (body.clientHeight) {
+                height = body.clientHeight;
+            }
+        }
+
+        if (recWindow.innerWidth) {
+            width = recWindow.innerWidth;
+        } else if (recDocument.documentElement && recDocument.documentElement.clientWidth) {
+            width = recDocument.documentElement.clientWidth;
+        } else {
+            body = recDocument.getElementsByTagName('body')[0];
+            if (body.clientWidth) {
+                width = body.clientWidth;
+            }
+        }
+
         return {
-            width: recWindow.innerWidth,
-            height: recWindow.innerHeight
+            width: width,
+            height: height
         };
     },
 
