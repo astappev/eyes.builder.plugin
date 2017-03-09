@@ -72,7 +72,11 @@ applitools.playbackUtils.executeScript = function(r, script) {
 };
 
 applitools.playbackUtils.getDocumentReadyStatus = function(r) {
-    return applitools.playbackUtils.executeScript(r, JS_GET_DOCUMENT_READY_STATUS);
+    console.debug("Debug pointer before executing script for getting ready status.");
+    return applitools.playbackUtils.executeScript(r, JS_GET_DOCUMENT_READY_STATUS).then(function (results) {
+        console.debug("Ready status successful received.", results);
+        return results;
+    });
 };
 
 applitools.playbackUtils.getWindowPosition = function(r) {
@@ -348,7 +352,11 @@ applitools.playbackUtils.setScrollPosition = function(r, point) {
 };
 
 applitools.playbackUtils.getUserAgent = function(r) {
-    return applitools.playbackUtils.executeScript(r, JS_GET_USER_AGENT);
+    console.debug("Debug pointer before executing script for getting user agent.");
+    return applitools.playbackUtils.executeScript(r, JS_GET_USER_AGENT).then(function (results) {
+        console.debug("User agent successful received.", results);
+        return results;
+    });
 };
 
 applitools.playbackUtils.getDevicePixelRatio = function(r) {
