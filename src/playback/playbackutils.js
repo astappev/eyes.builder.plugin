@@ -3,9 +3,9 @@ applitools.playbackUtils = {};
 
 var JS_GET_DOCUMENT_READY_STATUS = "return document.readyState";
 
-var JS_GET_USER_AGENT = "return navigator.userAgent";
+var JS_GET_USER_AGENT = "return navigator.userAgent;";
 
-var JS_GET_DEVICE_PIXEL_RATIO = "return window.devicePixelRatio";
+var JS_GET_DEVICE_PIXEL_RATIO = "return window.devicePixelRatio;";
 
 var JS_GET_VIEWPORT_SIZE =
     "var height = undefined; " +
@@ -60,23 +60,22 @@ applitools.playbackUtils.sleep = function(ms) {
 
 applitools.playbackUtils.executeScript = function(r, script) {
     return applitools.promiseFactory.makePromise(function (resolve, reject) {
+        console.debug("Executing script:", script);
         builder.selenium2.rcPlayback.send(r, "POST", "/execute", JSON.stringify({
             'script': script,
             'args': []
         }), function (r, response) {
+            console.debug("Script executed successfully.", response);
             resolve(response.value);
         }, function (r, response) {
+            console.debug("Script executing failed.", response);
             reject(response);
         });
     });
 };
 
 applitools.playbackUtils.getDocumentReadyStatus = function(r) {
-    console.debug("Debug pointer before executing script for getting ready status.");
-    return applitools.playbackUtils.executeScript(r, JS_GET_DOCUMENT_READY_STATUS).then(function (results) {
-        console.debug("Ready status successful received.", results);
-        return results;
-    });
+    return applitools.playbackUtils.executeScript(r, JS_GET_DOCUMENT_READY_STATUS);
 };
 
 applitools.playbackUtils.getWindowPosition = function(r) {
@@ -352,11 +351,7 @@ applitools.playbackUtils.setScrollPosition = function(r, point) {
 };
 
 applitools.playbackUtils.getUserAgent = function(r) {
-    console.debug("Debug pointer before executing script for getting user agent.");
-    return applitools.playbackUtils.executeScript(r, JS_GET_USER_AGENT).then(function (results) {
-        console.debug("User agent successful received.", results);
-        return results;
-    });
+    return applitools.playbackUtils.executeScript(r, JS_GET_USER_AGENT);
 };
 
 applitools.playbackUtils.getDevicePixelRatio = function(r) {

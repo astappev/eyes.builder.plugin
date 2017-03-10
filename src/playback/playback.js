@@ -97,7 +97,7 @@ function beforeAll(r) {
     // Save userAgent locally, in current record
     if (!r.vars.userAgent) {
         promise.then(function () {
-            applitools.playbackUtils.getUserAgent(r).then(function (value) {
+            return applitools.playbackUtils.getUserAgent(r).then(function (value) {
                 r.vars.userAgent = value;
             });
         });
